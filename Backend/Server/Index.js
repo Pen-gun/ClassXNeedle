@@ -13,6 +13,9 @@ app.get('/', (req, res) => {
 app.get('/about', (req, res) => {
   res.send('This is the about page.')
 })
+app.get('/contact', (req, res) => {
+  res.send('This is the contact page.')
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
