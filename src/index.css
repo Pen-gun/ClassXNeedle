@@ -1,0 +1,16 @@
+@import "tailwindcss";
+@media (max-width: 600px) {
+  p{
+    font-size: 14px;
+  }
+  a{
+    font-size: 14px;
+  }
+  body{
+    padding: 10px;
+  }
+  button{
+    font-size: 14px;
+  }
+
+}
