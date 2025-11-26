@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useContact } from "../../Hooks/ExampleHook";
 
 const HomePageContent = () => {
+    const contact = useContact();
     const [inputValue, setInputValue] = useState("");
     const [deValue, setDeValue] = useState("");
 
@@ -11,6 +13,7 @@ const HomePageContent = () => {
 
         return () => clearTimeout(timer);
     }, [inputValue]);
+     const contacts = Array.isArray(contact.data) ? contact.data : [];
 
     return (
         <div>
@@ -24,6 +27,13 @@ const HomePageContent = () => {
             />
             <p>You typed: {inputValue}</p>
             <p>Debounced value (1s delay): {deValue}</p>
+            <p>Contact: {contacts.length}</p>
+            {contacts.map((item: any) =>
+                <div key={item.id} className="flex px-20px">
+                    {item.id} + {item.email} +{item.phoone} + {item.address}
+                </div>
+
+            )}
         </div>
     );
 }
