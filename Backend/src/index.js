@@ -15,15 +15,3 @@ connectToDB().then(()=>{
     console.error("Failed to connect to the database", err);
     process.exit(1);
 });
-
-
-/*;(async()=>{
-    try{
-        await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`);
-        console.log("Connected to the database successfully");
-
-    }catch(err){
-        console.error("Error connecting to the database", err);
-        throw err;
-    }
-})();*/
