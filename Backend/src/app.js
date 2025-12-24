@@ -1,6 +1,8 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import routes from './routes/index.routes.js';
+import { graphqlMiddleware } from './graphql/index.js';
 
 const app = express()
 
@@ -24,5 +26,7 @@ app.use(cookieParser())
 
 
 //route declaration
+app.use('/api', routes)
+app.use('/graphql', graphqlMiddleware)
 
 export default app;
