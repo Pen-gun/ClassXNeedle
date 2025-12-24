@@ -23,4 +23,9 @@ const reviewSchema = new mongoose.Schema({
     }
 },{timestamps: true})
 
+reviewSchema.methods.averageRating = function(ratings) {
+    if (ratings.length === 0) return 0;
+    const total = ratings.reduce((sum, review) => sum + review.rating, 0);
+    return total / ratings.length;
+};
 export const Review = mongoose.model("Review", reviewSchema)
