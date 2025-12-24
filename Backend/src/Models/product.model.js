@@ -109,4 +109,32 @@ productSchema.pre("findOneAndUpdate", function(next) {
     next();
 });
 
+// in Product model file or a separate Review model file
+productSchema.statics.calcAverageRatings = async function(productId) {
+    const stats = await Review.aggregate([
+        { $match: { productId: mongoose.Types.ObjectId(productId) } },
+        {
+            $group: {
+                _id: '$productId',
+                nRating: { $sum: 1 },
+                avgRating: { $avg: '$rating' }
+            }
+        }
+    ]);
+
+    if (stats.length > 0) {
+        await this.findByIdAndUpdate(productId, {
+            ratingsQuantity: stats[0].nRating,
+            ratingsAverage: stats[0].avgRating
+        });
+    } else {
+        // No reviews, reset
+        await this.findByIdAndUpdate(productId, {
+            ratingsQuantity: 0,
+            ratingsAverage: 0
+        });
+    }
+};
+
+
 export const Product = mongoose.model("Product", productSchema);
