@@ -1,7 +1,7 @@
-import monggose from 'mongoose';
+import mongoose from 'mongoose';
 import slugify from 'slugify';
 
-const subCategorySchema = new monggose.Schema({
+const subCategorySchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -32,4 +32,4 @@ subCategorySchema.pre("save", function (next) {
     next();
 });
 
-export const SubCategory = monggose.model("SubCategory", subCategorySchema);
+export const SubCategory = mongoose.model("SubCategory", subCategorySchema);

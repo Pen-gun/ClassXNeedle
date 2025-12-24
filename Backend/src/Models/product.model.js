@@ -110,6 +110,7 @@ productSchema.pre("findOneAndUpdate", function(next) {
 });
 
 // in Product model file or a separate Review model file
+import { Review } from "./review.model.js";
 productSchema.statics.calcAverageRatings = async function(productId) {
     const stats = await Review.aggregate([
         { $match: { productId: new mongoose.Types.ObjectId(productId) } },
