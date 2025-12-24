@@ -222,9 +222,9 @@ export const resolvers = {
     return res[0] || null;
   },
 
-  async me(args, req) {
-    const userId = req?.req?.user?._id;
-    if (!userId) return null;
+  async me(args, context) {
+    const userId = context?.req?.user?._id;
+    if (!userId) throw new Error('Authentication required: Please login to access your profile');
     const users = await User.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(userId) } },
       { $project: { password: 0, refreshToken: 0 } },
@@ -233,9 +233,9 @@ export const resolvers = {
     return users[0] || null;
   },
 
-  async myOrders({ page = 1, limit = 10 }, req) {
-    const userId = req?.req?.user?._id;
-    if (!userId) return [];
+  async myOrders({ page = 1, limit = 10 }, context) {
+    const userId = context?.req?.user?._id;
+    if (!userId) throw new Error('Authentication required: Please login to view your orders');
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
@@ -248,9 +248,9 @@ export const resolvers = {
     ]);
   },
 
-  async myCart(args, req) {
-    const userId = req?.req?.user?._id;
-    if (!userId) return null;
+  async myCart(args, context) {
+    const userId = context?.req?.user?._id;
+    if (!userId) throw new Error('Authentication required: Please login to access your cart');
 
     const carts = await Cart.aggregate([
       { $match: { customer: new mongoose.Types.ObjectId(userId) } },

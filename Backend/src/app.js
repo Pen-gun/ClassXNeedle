@@ -25,7 +25,7 @@ import routes from './routes/index.routes.js';
 import { graphqlMiddleware } from './graphql/index.js';
 
 //route declaration
-app.use('/api', routes)
 app.use('/graphql', graphqlMiddleware)
+app.use('/api', routes)
 
 export default app;
