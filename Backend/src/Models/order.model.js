@@ -3,10 +3,6 @@ import mongoose from 'mongoose';
 //can also create orderItem schema separately if needed
 
 const orderSchema = new mongoose.Schema({
-    orderPrice: {
-        type: Number,
-        required: true
-    },
     orderItems: [
         {
             productId: {
@@ -29,9 +25,27 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    number: {
+    shippingCost:{
         type: Number,
         required: true
+    },
+    orderPrice: {
+        type: Number,
+        required: true
+    },
+    isPaid: {
+        type: Boolean,
+        default: false
+    },
+    paidAt: {
+        type: Date
+    },
+    isDelivered: {
+        type: Boolean,
+        default: false
+    },
+    deliveredAt: {
+        type: Date
     },
     status: {
         type: String,
