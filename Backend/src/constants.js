@@ -1,1 +1,1 @@
-export const DB_NAME = 'classxneedle_db';
+export const DB_NAME = 'ClassXNeedle_db';
