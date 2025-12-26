@@ -14,7 +14,7 @@ import jwt from 'jsonwebtoken';
  * @access  Public
  */
 export const registerUser = asyncHandler(async (req, res) => {
-    const { username, fullName, email, phone, password } = req.body;
+    const { username, fullName, email, phone, password} = req.body;
 
     // Validation
     if (!username || !fullName || !password) {
