@@ -36,7 +36,7 @@ export const createCategory = asyncHandler(async (req, res) => {
         }
         imageUrl = imageResult.secure_url;
     } else {
-        throw new ApiError(400, "Category image is required");
+        // throw new ApiError(400, "Category image is required");
     }
 
     const category = await Category.create({

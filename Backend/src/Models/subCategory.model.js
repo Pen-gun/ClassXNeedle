@@ -21,7 +21,7 @@ const subCategorySchema = new mongoose.Schema({
 },{timestamps: true});
 
 // Auto-generate sub-category slug
-subCategorySchema.pre("save", function (next) {
+subCategorySchema.pre("save", function () {
     if (this.isModified("name")) {
         this.slug = slugify(this.name, {
             lower: true,
@@ -29,7 +29,6 @@ subCategorySchema.pre("save", function (next) {
             trim: true
         });
     }
-    next();
 });
 
 export const SubCategory = mongoose.model("SubCategory", subCategorySchema);

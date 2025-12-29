@@ -16,13 +16,12 @@ const categorySchema = new mongoose.Schema({
     },
     image: {
         type: String,
-        required: true
     }
 
 },{timestamps: true});
 
 // Auto-generate category slug
-categorySchema.pre("save", function (next) {
+categorySchema.pre("save", function () {
     if (this.isModified("name")) {
         this.slug = slugify(this.name, {
             lower: true,
@@ -30,7 +29,6 @@ categorySchema.pre("save", function (next) {
             trim: true
         });
     }
-    next();
 });
 
 export const Category = mongoose.model("Category", categorySchema);
