@@ -19,7 +19,7 @@ const brandSchema = new mongoose.Schema({
 },{timestamps: true});
 
 // Auto-generate brand slug
-brandSchema.pre("save", function (next) {
+brandSchema.pre("save", function () {
     if (this.isModified("name")) {
         this.slug = slugify(this.name, {
             lower: true,
@@ -27,7 +27,6 @@ brandSchema.pre("save", function (next) {
             trim: true
         });
     }
-    next();
 });
 
 export const Brand = mongoose.model("Brand", brandSchema);

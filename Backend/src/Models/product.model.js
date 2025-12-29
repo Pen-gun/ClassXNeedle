@@ -84,18 +84,17 @@ const productSchema = new mongoose.Schema({
 
 
 // AUTO-GENERATE SLUG BEFORE SAVE
-productSchema.pre("save", function(next) {
-    if (this.isModified("name")) {
+productSchema.pre("validate", function() {
+    if (this.name && (!this.slug || this.isModified("name"))) {
         this.slug = slugify(this.name, {
             lower: true,
             strict: true,
             trim: true
         });
     }
-    next();
 });
 //on update as well
-productSchema.pre("findOneAndUpdate", function(next) {
+productSchema.pre("findOneAndUpdate", function() {
     const update = this.getUpdate();
 
     if (update.name) {
@@ -105,8 +104,6 @@ productSchema.pre("findOneAndUpdate", function(next) {
             trim: true
         });
     }
-
-    next();
 });
 
 // in Product model file or a separate Review model file
