@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { GraphQLScalarType, Kind } from 'graphql';
 import { Product } from '../Models/product.model.js';
 import { Category } from '../Models/category.model.js';
 import { SubCategory } from '../Models/subCategory.model.js';
@@ -9,6 +10,24 @@ import { Order } from '../Models/order.model.js';
 import { Cart } from '../Models/cart.model.js';
 
 export const resolvers = {
+  Date: new GraphQLScalarType({
+    name: 'Date',
+    description: 'ISO-8601 date scalar',
+    serialize(value) {
+      return value instanceof Date ? value.toISOString() : null;
+    },
+    parseValue(value) {
+      const parsed = new Date(value);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    },
+    parseLiteral(ast) {
+      if (ast.kind === Kind.STRING || ast.kind === Kind.INT) {
+        const parsed = new Date(ast.value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+      }
+      return null;
+    }
+  }),
   async products({ filter = {} }) {
     const {
       page = 1,
