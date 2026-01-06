@@ -2,7 +2,8 @@ import connectToDB from './db/connectionToDb.helper.js';
 import dotenv from 'dotenv';
 import app from './app.js';
 
-dotenv.config({path: '../.env'});
+// Load environment variables from .env file in Backend directory
+dotenv.config();
 
 connectToDB().then(()=>{
     app.listen(process.env.PORT, ()=>{
