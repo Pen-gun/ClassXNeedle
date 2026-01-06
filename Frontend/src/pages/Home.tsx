@@ -40,14 +40,14 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
           className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 text-stone-600 dark:text-white"
           aria-label="Add to wishlist"
         >
-          <Icons.Heart />
+          <Heart className="w-5 h-5" />
         </button>
 
         <button
           onClick={() => onAdd(product._id)}
           className="quick-add-btn btn-primary text-sm py-2.5 px-5 flex items-center gap-2"
         >
-          <Icons.Cart />
+          <ShoppingBag className="w-4 h-4" />
           Add to Cart
         </button>
       </div>
@@ -59,7 +59,7 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
           </h3>
           {product.ratingsAverage && (
             <div className="flex items-center gap-1 shrink-0">
-              <Icons.Star />
+              <Star className="w-4 h-4 text-accent-gold fill-accent-gold" />
               <span className="text-sm text-stone-500">{product.ratingsAverage.toFixed(1)}</span>
             </div>
           )}
@@ -92,7 +92,7 @@ const CategoryCard = ({ category }: { category: Category }) => (
       <span className="text-white/70 text-sm uppercase tracking-wider mb-1">Explore</span>
       <h3 className="text-white text-xl font-display font-semibold">{category.name}</h3>
       <div className="mt-3 flex items-center gap-2 text-white text-sm opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-        Shop Now <Icons.ArrowRight />
+        Shop Now <ArrowRight className="w-4 h-4" />
       </div>
     </div>
   </Link>
@@ -100,10 +100,10 @@ const CategoryCard = ({ category }: { category: Category }) => (
 
 // Features data
 const features = [
-  { icon: <Icons.Truck />, title: 'Free Shipping', description: 'On orders over $150' },
-  { icon: <Icons.Shield />, title: 'Secure Payment', description: '100% secure checkout' },
-  { icon: <Icons.Sparkles />, title: 'Premium Quality', description: 'Finest materials' },
-  { icon: <Icons.Heart />, title: 'Easy Returns', description: '30-day returns' },
+  { icon: <Truck className="w-6 h-6" />, title: 'Free Shipping', description: 'On orders over $150' },
+  { icon: <ShieldCheck className="w-6 h-6" />, title: 'Secure Payment', description: '100% secure checkout' },
+  { icon: <Sparkles className="w-6 h-6" />, title: 'Premium Quality', description: 'Finest materials' },
+  { icon: <Heart className="w-6 h-6" />, title: 'Easy Returns', description: '30-day returns' },
 ];
 
 const Home = () => {
@@ -226,7 +226,7 @@ const Home = () => {
               <h2 className="section-title mt-2">Shop by Category</h2>
             </div>
             <Link to="/catalog" className="btn-ghost flex items-center gap-2 text-sm">
-              View All Categories <Icons.ArrowRight />
+              View All Categories <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
@@ -247,7 +247,7 @@ const Home = () => {
               <h2 className="section-title mt-2">Featured Products</h2>
             </div>
             <Link to="/catalog" className="btn-ghost flex items-center gap-2 text-sm">
-              View All Products <Icons.ArrowRight />
+              View All Products <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
@@ -304,7 +304,7 @@ const Home = () => {
                 <span className="text-white/70 text-sm uppercase tracking-wider mb-1">Essential</span>
                 <h3 className="text-white font-display text-2xl font-semibold">Everyday Basics</h3>
                 <Link to="/catalog" className="mt-3 text-white flex items-center gap-2 text-sm hover:text-accent-gold transition-colors">
-                  Shop Now <Icons.ArrowRight />
+                  Shop Now <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
@@ -320,7 +320,7 @@ const Home = () => {
                 <span className="text-accent-gold text-sm uppercase tracking-wider mb-1">Limited Edition</span>
                 <h3 className="text-white font-display text-2xl font-semibold">Exclusive Pieces</h3>
                 <Link to="/catalog" className="mt-3 text-white flex items-center gap-2 text-sm hover:text-accent-gold transition-colors">
-                  Shop Now <Icons.ArrowRight />
+                  Shop Now <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
