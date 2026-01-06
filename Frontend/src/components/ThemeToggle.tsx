@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import type { Theme } from '../hooks/useTheme';
 
 type Props = {
@@ -24,7 +25,7 @@ const Icons = {
 };
 
 const ThemeToggle = ({ value, onChange }: Props) => {
-  const options: { icon: JSX.Element; value: Theme; label: string }[] = [
+  const options: { icon: ReactElement; value: Theme; label: string }[] = [
     { icon: <Icons.Sun />, value: 'light', label: 'Light' },
     { icon: <Icons.Moon />, value: 'dark', label: 'Dark' },
     { icon: <Icons.System />, value: 'system', label: 'System' },
