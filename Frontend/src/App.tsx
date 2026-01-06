@@ -7,6 +7,9 @@ import './App.css';
 
 const HomePage = lazy(() => import('./pages/Home'));
 const CatalogPage = lazy(() => import('./pages/Catalog'));
+const AuthPage = lazy(() => import('./pages/Auth'));
+const CartPage = lazy(() => import('./pages/Cart'));
+const OrdersPage = lazy(() => import('./pages/Orders'));
 
 const App = () => {
   const queryClient = useMemo(() => new QueryClient({
@@ -27,7 +30,7 @@ const App = () => {
         {
           index: true,
           element: (
-            <Suspense fallback={<div className="page-loading">Loading launchpad…</div>}>
+            <Suspense fallback={<div className="page-loading">Loading…</div>}>
               <HomePage />
             </Suspense>
           )
@@ -37,6 +40,30 @@ const App = () => {
           element: (
             <Suspense fallback={<div className="page-loading">Loading catalog…</div>}>
               <CatalogPage />
+            </Suspense>
+          )
+        },
+        {
+          path: '/auth',
+          element: (
+            <Suspense fallback={<div className="page-loading">Loading auth…</div>}>
+              <AuthPage />
+            </Suspense>
+          )
+        },
+        {
+          path: '/cart',
+          element: (
+            <Suspense fallback={<div className="page-loading">Loading cart…</div>}>
+              <CartPage />
+            </Suspense>
+          )
+        },
+        {
+          path: '/orders',
+          element: (
+            <Suspense fallback={<div className="page-loading">Loading orders…</div>}>
+              <OrdersPage />
             </Suspense>
           )
         }
