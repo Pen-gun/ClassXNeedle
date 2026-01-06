@@ -50,6 +50,11 @@
   color: #fff;
 }
 
+.nav a.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
 .nav-actions {
   display: flex;
   gap: 10px;
@@ -281,6 +286,13 @@ main {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
 }
 
+.product-card.skeleton {
+  height: 320px;
+  background: linear-gradient(90deg, #0f1118, #131620, #0f1118);
+  background-size: 200% 200%;
+  animation: shimmer 1.6s ease infinite;
+}
+
 .product-media {
   position: relative;
   height: 220px;
@@ -327,6 +339,14 @@ main {
 .price {
   font-weight: 800;
   font-size: 18px;
+}
+
+.compare {
+  margin-left: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: line-through;
+  font-weight: 500;
+  font-size: 14px;
 }
 
 .cta {
@@ -379,6 +399,38 @@ main {
   color: rgba(255, 255, 255, 0.72);
 }
 
+.chips, .chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.chip {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fbff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.chip-active {
+  background: linear-gradient(135deg, #6b5dff, #ff8bd1);
+  color: #0b0d11;
+  border-color: transparent;
+}
+
+.page-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px;
+  color: #f8fbff;
+  font-weight: 700;
+}
+
 @media (max-width: 720px) {
   .nav {
     flex-direction: column;
@@ -387,5 +439,14 @@ main {
 
   .nav nav {
     flex-wrap: wrap;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
   }
 }

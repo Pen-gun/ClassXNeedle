@@ -9,6 +9,8 @@ This backend exposes:
 ```bash
 # from Backend directory
 npm install
+# seed initial catalog (optional)
+npm run seed
 # ensure env
 # .env must include MONGODB_URL, PORT, CLIENT_URL, ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET, etc.
 ```
