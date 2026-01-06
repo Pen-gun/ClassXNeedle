@@ -118,7 +118,7 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
 
 // Category Card Component
 const CategoryCard = ({ category }: { category: Category }) => (
-  <Link to={`/catalog?category=${category.slug}`} className="group relative aspect-[4/5] overflow-hidden rounded-2xl">
+  <Link to={`/catalog/${category.slug}`} className="group relative aspect-[4/5] overflow-hidden rounded-2xl">
     <img
       src={category.image || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600'}
       alt={category.name}

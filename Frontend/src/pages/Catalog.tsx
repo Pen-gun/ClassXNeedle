@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
 import { useCartMutations } from '../hooks/useCart';
@@ -130,27 +130,25 @@ const sortOptions = [
 ];
 
 const Catalog = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { category: categoryParam } = useParams<{ category?: string }>();
+  const navigate = useNavigate();
   const { data: products = [], isLoading: loadingProducts } = useProducts();
   const { data: categories = [] } = useCategories();
   const { addItem } = useCartMutations();
   const requireAuth = useRequireAuth();
   
-  const initialCategory = searchParams.get('category') || 'all';
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
+  const selectedCategory = categoryParam || 'all';
   const [sortBy, setSortBy] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const handleCategoryChange = (slug: string) => {
-    setSelectedCategory(slug);
     if (slug === 'all') {
-      searchParams.delete('category');
+      navigate('/catalog');
     } else {
-      searchParams.set('category', slug);
+      navigate(`/catalog/${slug}`);
     }
-    setSearchParams(searchParams);
   };
 
   const filtered = useMemo(() => {

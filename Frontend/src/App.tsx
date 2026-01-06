@@ -47,7 +47,7 @@ const App = () => {
           )
         },
         {
-          path: '/catalog',
+          path: '/catalog/:category?',
           element: (
             <Suspense fallback={<PageLoader message="Loading catalog..." />}>
               <CatalogPage />
