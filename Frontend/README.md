@@ -1,73 +1,40 @@
-# React + TypeScript + Vite
+# Frontend (Vite + React)
+Customer-facing storefront for ClassXNeedle. Built with Vite + React + TypeScript, styled with Tailwind, and powered by TanStack Query for data fetching/caching. Uses REST for mutations and GraphQL for read-heavy catalog/cart views.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Stack & architecture
+- React Router v7 route tree (`App.tsx`, `Layout.tsx`, `ProtectedRoute.tsx`) with guarded areas for cart/orders/auth.
+- TanStack Query for all network access (`src/lib/api.ts`), speaking to `/api` (REST) and `/graphql`.
+- Tailwind CSS with custom theme tokens (`tailwind.config.js`, `src/index.css`, `src/App.css`) and a light/dark/system toggle persisted via `useTheme`.
+- Component organization: `components/` (layout, UI primitives, product/cart widgets), `pages/` (Home, Catalog, Cart, Orders, Auth), `hooks/` (auth/cart/orders/theme/data helpers), `lib/` (API client, constants, utilities), `types.ts`.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Setup
+```bash
+cd Frontend
+npm install
+cp .env .env.local   # or edit .env directly
+npm run dev          # defaults to http://localhost:5173
 ```
+Node 18+ recommended.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Environment variables
+- `VITE_API_URL` – REST base URL (e.g., `http://localhost:3000/api`).
+- `VITE_GRAPHQL_URL` – GraphQL endpoint (e.g., `http://localhost:3000/graphql`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Scripts
+- `npm run dev` – Vite dev server.
+- `npm run build` – TypeScript project references + Vite build.
+- `npm run preview` – Preview the production build.
+- `npm run lint` – ESLint (TS + React).
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Feature tour
+- **Home** (`pages/Home.tsx`): hero, category highlights, featured products, lookbook/brand storytelling.
+- **Catalog** (`pages/Catalog.tsx`): product grid sourced from GraphQL, category filtering, quick add-to-cart CTAs.
+- **Cart** (`pages/Cart.tsx`): view/update quantities, apply/remove coupon, clear cart, checkout CTA; guarded by auth.
+- **Orders** (`pages/Orders.tsx`): list and cancel orders; guarded by auth.
+- **Auth** (`pages/Auth.tsx`): login/register flows using cookie-based backend auth; redirects back to the origin route via `useRequireAuth`.
+- **Theme**: light/dark/system toggle in header with persistence.
+
+## Development notes
+- Axios client (`restClient`) is configured with `withCredentials: true`; ensure backend CORS `CLIENT_URL` matches the frontend origin so cookies are accepted.
+- GraphQL helper wraps errors and provides small typed helpers for catalog/cart/order fetches.
+- If adding new API calls, prefer colocated React Query hooks for caching/invalidations (see `useAuth`, `useCart`, `useOrders`).
