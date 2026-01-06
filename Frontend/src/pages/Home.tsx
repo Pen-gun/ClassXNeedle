@@ -1,63 +1,147 @@
+import { Link } from 'react-router-dom';
 import { useFeaturedProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
 import { useCartMutations } from '../hooks/useCart';
 import { useRequireAuth } from '../hooks/useAuth';
-import type { Product } from '../types';
+import type { Product, Category } from '../types';
 
-const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string) => void }) => (
-  <article
-    className="group overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 shadow-sm backdrop-blur transition hover:-translate-y-1 hover:shadow-lg dark:border-white/10 dark:bg-white/5"
-    key={product._id}
-  >
-    <div
-      className="relative h-52 bg-cover bg-center"
-      style={{
-        backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.45)), url(${product.coverImage})`
-      }}
-    >
-      {product.category?.name && (
-        <span className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white">
-          {product.category.name}
-        </span>
-      )}
-    </div>
-    <div className="space-y-2 p-4">
-      <h3 className="text-lg font-semibold">{product.name}</h3>
-      <p className="text-sm text-slate-500 dark:text-slate-400">
-        {product.description || 'Engineered staples built to move with you.'}
-      </p>
-      <div className="flex items-center justify-between">
-        <span className="text-lg font-bold">
-          ${product.priceAfterDiscount ?? product.price ?? 0}
-          {product.priceAfterDiscount && product.price && (
-            <span className="ml-2 text-sm font-normal text-slate-500 line-through">
-              ${product.price}
+// Icons
+const Icons = {
+  ArrowRight: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+    </svg>
+  ),
+  Star: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-accent-gold">
+      <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
+    </svg>
+  ),
+  Truck: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+    </svg>
+  ),
+  Shield: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+    </svg>
+  ),
+  Sparkles: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+    </svg>
+  ),
+  Heart: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+    </svg>
+  ),
+  Cart: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+    </svg>
+  ),
+};
+
+// Product Card Component
+const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string) => void }) => {
+  const hasDiscount = product.priceAfterDiscount && product.price && product.priceAfterDiscount < product.price;
+  const discountPercent = hasDiscount 
+    ? Math.round((1 - (product.priceAfterDiscount! / product.price!)) * 100) 
+    : 0;
+
+  return (
+    <article className="product-card group">
+      <div className="product-image">
+        <img
+          src={product.coverImage || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600'}
+          alt={product.name}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+        
+        <div className="product-hover-overlay" />
+
+        <div className="absolute top-3 left-3 flex flex-col gap-2">
+          {hasDiscount && (
+            <span className="badge-gold">-{discountPercent}%</span>
+          )}
+          {product.category?.name && (
+            <span className="badge bg-white/90 dark:bg-black/70 text-stone-700 dark:text-white backdrop-blur-sm">
+              {product.category.name}
             </span>
           )}
-        </span>
-        <button
-          className="rounded-full bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900"
-          onClick={() => onAdd(product._id)}
-          type="button"
+        </div>
+
+        <button 
+          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 text-stone-600 dark:text-white"
+          aria-label="Add to wishlist"
         >
-          Add to cart
+          <Icons.Heart />
+        </button>
+
+        <button
+          onClick={() => onAdd(product._id)}
+          className="quick-add-btn btn-primary text-sm py-2.5 px-5 flex items-center gap-2"
+        >
+          <Icons.Cart />
+          Add to Cart
         </button>
       </div>
+
+      <div className="p-4 space-y-2">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-medium text-accent-charcoal dark:text-accent-cream line-clamp-2 group-hover:text-accent-gold transition-colors">
+            {product.name}
+          </h3>
+          {product.ratingsAverage && (
+            <div className="flex items-center gap-1 shrink-0">
+              <Icons.Star />
+              <span className="text-sm text-stone-500">{product.ratingsAverage.toFixed(1)}</span>
+            </div>
+          )}
+        </div>
+        
+        <p className="text-sm text-stone-500 dark:text-stone-400 line-clamp-2">
+          {product.description || 'Premium quality crafted with attention to detail'}
+        </p>
+
+        <div className="flex items-center gap-2 pt-1">
+          <span className="price text-lg">${product.priceAfterDiscount ?? product.price ?? 0}</span>
+          {hasDiscount && <span className="price-original">${product.price}</span>}
+        </div>
+      </div>
+    </article>
+  );
+};
+
+// Category Card Component
+const CategoryCard = ({ category }: { category: Category }) => (
+  <Link to={`/catalog?category=${category.slug}`} className="group relative aspect-[4/5] overflow-hidden rounded-2xl">
+    <img
+      src={category.image || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600'}
+      alt={category.name}
+      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+      loading="lazy"
+    />
+    <div className="category-overlay absolute inset-0" />
+    <div className="absolute inset-0 flex flex-col justify-end p-6">
+      <span className="text-white/70 text-sm uppercase tracking-wider mb-1">Explore</span>
+      <h3 className="text-white text-xl font-display font-semibold">{category.name}</h3>
+      <div className="mt-3 flex items-center gap-2 text-white text-sm opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+        Shop Now <Icons.ArrowRight />
+      </div>
     </div>
-  </article>
+  </Link>
 );
 
-const lookbook = [
-  {
-    title: 'Night Run',
-    copy: 'Reflective piping, breathable layers, built for late city laps.',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1400&q=80'
-  },
-  {
-    title: 'Studio Shift',
-    copy: 'Monochrome tailoring with modular pockets for carry.',
-    image: 'https://images.unsplash.com/photo-1521572153540-5102f3aa7c59?auto=format&fit=crop&w=1400&q=80'
-  }
+// Features data
+const features = [
+  { icon: <Icons.Truck />, title: 'Free Shipping', description: 'On orders over $150' },
+  { icon: <Icons.Shield />, title: 'Secure Payment', description: '100% secure checkout' },
+  { icon: <Icons.Sparkles />, title: 'Premium Quality', description: 'Finest materials' },
+  { icon: <Icons.Heart />, title: 'Easy Returns', description: '30-day returns' },
 ];
 
 const Home = () => {
@@ -66,168 +150,270 @@ const Home = () => {
   const { addItem } = useCartMutations();
   const requireAuth = useRequireAuth();
 
-  const heroProduct = products[0];
+  const handleAddToCart = (productId: string) => {
+    if (!requireAuth()) return;
+    addItem.mutate({ productId, quantity: 1 });
+  };
 
   return (
-    <div className="space-y-8">
-      <section className="overflow-hidden rounded-3xl border border-slate-200/80 gradient-hero shadow-card dark:border-white/10">
-        <div className="grid items-center gap-6 p-8 lg:grid-cols-2">
-          <div className="space-y-4">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-300">ClassXNeedle Atelier</p>
-            <h1 className="text-4xl font-bold text-white lg:text-5xl">Urban performance tailoring with a clean studio finish.</h1>
-            <p className="text-slate-200">
-              Seasonless layers, breathable tech fabrics, and premium construction inspired by luxury sport labels.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <button className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow">
-                Shop collection
-              </button>
-              <button className="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold text-white">
-                View lookbook
-              </button>
+    <div className="space-y-0">
+      {/* Hero Section */}
+      <section className="relative min-h-[90vh] flex items-center gradient-hero overflow-hidden">
+        <div className="gradient-hero-overlay absolute inset-0" />
+        
+        <div className="absolute top-20 left-10 w-72 h-72 bg-accent-gold/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent-gold/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+
+        <div className="container-wide relative z-10 py-20">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <div className="space-y-8 text-white animate-fade-up">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10">
+                <span className="w-2 h-2 rounded-full bg-accent-gold animate-pulse" />
+                <span className="text-sm tracking-wider uppercase">New Collection 2026</span>
+              </div>
+              
+              <h1 className="font-display text-display-lg lg:text-display-xl text-balance">
+                Elegance
+                <span className="block text-accent-gold">Redefined</span>
+              </h1>
+              
+              <p className="text-lg text-stone-300 max-w-lg leading-relaxed">
+                Discover our curated collection of premium clothing where timeless design meets contemporary sophistication.
+              </p>
+
+              <div className="flex flex-wrap gap-4">
+                <Link to="/catalog" className="btn-gold text-base px-8 py-4 btn-shine">
+                  Shop Collection
+                </Link>
+                <button className="btn border-2 border-white/30 text-white px-8 py-4 hover:bg-white/10 transition-all">
+                  Our Story
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-8 pt-4">
+                <div>
+                  <p className="text-3xl font-display font-semibold text-accent-gold">15K+</p>
+                  <p className="text-sm text-stone-400">Happy Customers</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-display font-semibold text-accent-gold">500+</p>
+                  <p className="text-sm text-stone-400">Premium Products</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-display font-semibold text-accent-gold">4.9</p>
+                  <p className="text-sm text-stone-400">Customer Rating</p>
+                </div>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-6 text-sm text-slate-200">
-              <div>
-                <p className="text-2xl font-bold text-white">24h</p>
-                <p>dispatch window</p>
+
+            <div className="relative hidden lg:block">
+              <div className="relative aspect-[3/4] rounded-3xl overflow-hidden shadow-elegant-xl">
+                <img
+                  src={products[0]?.coverImage || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800'}
+                  alt="Featured Collection"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                
+                <div className="absolute bottom-6 left-6 right-6 glass-dark rounded-2xl p-5">
+                  <p className="text-accent-gold text-xs uppercase tracking-widest mb-1">Featured</p>
+                  <h3 className="text-white font-display text-xl font-semibold">
+                    {products[0]?.name || 'Signature Collection'}
+                  </h3>
+                  <p className="text-stone-300 text-sm mt-1 line-clamp-2">
+                    {products[0]?.description || 'Premium craftsmanship meets modern design'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-2xl font-bold text-white">4.9</p>
-                <p>community rating</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-white">15k</p>
-                <p>orders shipped</p>
-              </div>
+              <div className="absolute -top-4 -right-4 w-full h-full border-2 border-accent-gold/30 rounded-3xl -z-10" />
             </div>
           </div>
-          <div className="relative flex min-h-[360px] items-end overflow-hidden rounded-2xl border border-white/10">
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{
-                backgroundImage: `linear-gradient(180deg, rgba(8,10,14,0.35), rgba(8,10,14,0.65)), url(${heroProduct?.coverImage || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1400&q=80'})`
-              }}
-            />
-            <div className="relative z-10 m-4 rounded-2xl bg-black/50 p-4 text-white backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.25em]">New Capsule</p>
-              <h3 className="text-xl font-semibold">{heroProduct?.name || 'Carbon Stitch Bomber'}</h3>
-              <p className="text-sm text-slate-200">{heroProduct?.description || 'Structured bomber with reflective seams and modular chest pocket.'}</p>
-            </div>
-          </div>
+        </div>
+
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50">
+          <span className="text-xs uppercase tracking-widest">Scroll</span>
+          <div className="w-px h-12 bg-gradient-to-b from-white/50 to-transparent" />
         </div>
       </section>
 
-      <section id="services" className="grid gap-3 md:grid-cols-3">
-        {['Premium materials', 'Express logistics', 'Care program'].map((title, idx) => (
-          <div key={title} className="glass rounded-2xl p-4">
-            <div className="h-10 w-10 rounded-full bg-slate-900 text-white dark:bg-white dark:text-slate-900 flex items-center justify-center font-semibold">
-              {idx + 1}
-            </div>
-            <h4 className="mt-2 text-lg font-semibold">{title}</h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              {idx === 0 && 'Technical nylons, water-repellent finishes, and articulated cuts for movement.'}
-              {idx === 1 && 'Same-day processing, tracked shipping, and live order visibility.'}
-              {idx === 2 && 'Repairs and refresh for core staples to keep them in rotation longer.'}
-            </p>
-          </div>
-        ))}
-      </section>
-
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Shop by category</p>
-            <h2 className="text-2xl font-semibold">Curated edits for every run of your day</h2>
-          </div>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.slice(0, 4).map((cat) => (
-            <div
-              key={cat._id}
-              className="relative h-44 overflow-hidden rounded-2xl border border-slate-200/80 bg-cover bg-center shadow-sm dark:border-white/10"
-              style={{
-                backgroundImage: `linear-gradient(180deg, rgba(10,12,16,0.2), rgba(10,12,16,0.6)), url(${cat.image || 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=900&q=80'})`
-              }}
-            >
-              <div className="absolute inset-0 flex items-end p-3">
-                <div className="rounded-full bg-black/50 px-3 py-1 text-xs font-semibold text-white">{cat.name}</div>
+      {/* Features Bar */}
+      <section className="bg-white dark:bg-stone-900 border-y border-stone-200 dark:border-stone-800">
+        <div className="container-wide py-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            {features.map((feature, idx) => (
+              <div key={idx} className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-accent-gold/10 flex items-center justify-center text-accent-gold shrink-0">
+                  {feature.icon}
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm">{feature.title}</h4>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">{feature.description}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section id="products" className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Bestsellers</p>
-            <h2 className="text-2xl font-semibold">Signature pieces refined for movement</h2>
-          </div>
-        </div>
-        {loadingProducts ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, idx) => (
-              <div key={idx} className="h-64 rounded-2xl bg-slate-100 dark:bg-white/5 animate-pulse" />
             ))}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {products.map((product) => (
-              <ProductCard
-                product={product}
-                key={product._id}
-                onAdd={(id) => {
-                  if (!requireAuth()) return;
-                  addItem.mutate({ productId: id, quantity: 1 });
-                }}
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      <section className="section bg-accent-cream dark:bg-[#0f0f0f]">
+        <div className="container-wide">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+            <div>
+              <span className="section-subtitle">Curated Collections</span>
+              <h2 className="section-title mt-2">Shop by Category</h2>
+            </div>
+            <Link to="/catalog" className="btn-ghost flex items-center gap-2 text-sm">
+              View All Categories <Icons.ArrowRight />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 stagger-children">
+            {categories.slice(0, 4).map((category) => (
+              <CategoryCard key={category._id} category={category} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Products Section */}
+      <section className="section bg-white dark:bg-stone-950">
+        <div className="container-wide">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+            <div>
+              <span className="section-subtitle">Best Sellers</span>
+              <h2 className="section-title mt-2">Featured Products</h2>
+            </div>
+            <Link to="/catalog" className="btn-ghost flex items-center gap-2 text-sm">
+              View All Products <Icons.ArrowRight />
+            </Link>
+          </div>
+
+          {loadingProducts ? (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              {Array.from({ length: 8 }).map((_, idx) => (
+                <div key={idx} className="space-y-4">
+                  <div className="skeleton aspect-product rounded-2xl" />
+                  <div className="space-y-2">
+                    <div className="skeleton h-4 w-3/4 rounded" />
+                    <div className="skeleton h-3 w-1/2 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              {products.map((product) => (
+                <ProductCard key={product._id} product={product} onAdd={handleAddToCart} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Lookbook Section */}
+      <section className="section bg-accent-cream dark:bg-[#0f0f0f]">
+        <div className="container-wide">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="relative aspect-[4/5] md:aspect-auto md:row-span-2 rounded-3xl overflow-hidden group">
+              <img
+                src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1000"
+                alt="New Season"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
-            ))}
-          </div>
-        )}
-      </section>
+              <div className="image-overlay" />
+              <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
+                <span className="text-accent-gold text-sm uppercase tracking-widest mb-2">New Season</span>
+                <h3 className="text-white font-display text-3xl md:text-4xl font-semibold mb-4">
+                  Spring/Summer<br />Collection
+                </h3>
+                <Link to="/catalog" className="btn-gold w-fit">Discover Now</Link>
+              </div>
+            </div>
 
-      <section className="grid gap-3 md:grid-cols-2">
-        {lookbook.map((entry) => (
-          <div
-            key={entry.title}
-            className="relative min-h-[240px] overflow-hidden rounded-2xl border border-slate-200/80 bg-cover bg-center shadow-sm dark:border-white/10"
-            style={{
-              backgroundImage: `linear-gradient(135deg, rgba(4,5,8,0.35), rgba(4,5,8,0.65)), url(${entry.image})`
-            }}
-          >
-            <div className="absolute inset-0 flex flex-col justify-end p-4 text-white">
-              <p className="text-xs uppercase tracking-[0.25em]">Lookbook</p>
-              <h3 className="text-xl font-semibold">{entry.title}</h3>
-              <p className="text-sm text-slate-200">{entry.copy}</p>
-              <button className="mt-2 text-sm font-semibold underline underline-offset-4">View story →</button>
+            <div className="relative aspect-[16/9] rounded-3xl overflow-hidden group">
+              <img
+                src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"
+                alt="Essentials"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="image-overlay" />
+              <div className="absolute inset-0 flex flex-col justify-end p-6">
+                <span className="text-white/70 text-sm uppercase tracking-wider mb-1">Essential</span>
+                <h3 className="text-white font-display text-2xl font-semibold">Everyday Basics</h3>
+                <Link to="/catalog" className="mt-3 text-white flex items-center gap-2 text-sm hover:text-accent-gold transition-colors">
+                  Shop Now <Icons.ArrowRight />
+                </Link>
+              </div>
+            </div>
+
+            <div className="relative aspect-[16/9] rounded-3xl overflow-hidden group">
+              <img
+                src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800"
+                alt="Limited Edition"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="image-overlay" />
+              <div className="absolute inset-0 flex flex-col justify-end p-6">
+                <span className="text-accent-gold text-sm uppercase tracking-wider mb-1">Limited Edition</span>
+                <h3 className="text-white font-display text-2xl font-semibold">Exclusive Pieces</h3>
+                <Link to="/catalog" className="mt-3 text-white flex items-center gap-2 text-sm hover:text-accent-gold transition-colors">
+                  Shop Now <Icons.ArrowRight />
+                </Link>
+              </div>
             </div>
           </div>
-        ))}
+        </div>
       </section>
 
-      <section id="cta" className="grid gap-4 rounded-3xl border border-slate-200/80 bg-white/70 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 lg:grid-cols-2">
-        <div className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Early access</p>
-          <h2 className="text-2xl font-semibold">Get first dibs on limited runs and collabs.</h2>
-          <p className="text-slate-500 dark:text-slate-300">Drop alerts, fit guides, and studio notes from ClassXNeedle.</p>
-          <div className="flex flex-wrap gap-2">
-            {categories.slice(0, 6).map((cat) => (
-              <span key={cat._id} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-200">
-                {cat.name}
-              </span>
-            ))}
+      {/* Brand Story Section */}
+      <section className="section bg-white dark:bg-stone-950">
+        <div className="container-narrow text-center">
+          <span className="section-subtitle">Our Philosophy</span>
+          <h2 className="section-title mt-2 mb-6">Crafted with Passion</h2>
+          <p className="text-lg text-stone-600 dark:text-stone-400 leading-relaxed max-w-2xl mx-auto">
+            At ClassXNeedle, we believe that great style is timeless. Every piece in our collection 
+            is thoughtfully designed and crafted with premium materials to ensure you look and feel exceptional.
+          </p>
+          <div className="divider max-w-xs mx-auto my-10">
+            <span className="text-accent-gold">✦</span>
+          </div>
+          <div className="grid grid-cols-3 gap-8 max-w-xl mx-auto">
+            <div>
+              <p className="text-4xl font-display font-semibold text-accent-gold">10+</p>
+              <p className="text-sm text-stone-500 mt-1">Years Experience</p>
+            </div>
+            <div>
+              <p className="text-4xl font-display font-semibold text-accent-gold">100%</p>
+              <p className="text-sm text-stone-500 mt-1">Authentic Quality</p>
+            </div>
+            <div>
+              <p className="text-4xl font-display font-semibold text-accent-gold">50+</p>
+              <p className="text-sm text-stone-500 mt-1">Countries Shipped</p>
+            </div>
           </div>
         </div>
-        <form className="flex flex-col gap-3 lg:flex-row">
-          <input
-            type="email"
-            placeholder="you@crew.dev"
-            className="flex-1 rounded-lg border border-slate-200 px-3 py-3 text-sm dark:border-white/10 dark:bg-white/5"
-          />
-          <button type="submit" className="rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow dark:bg-white dark:text-slate-900">
-            Join the list
-          </button>
-        </form>
+      </section>
+
+      {/* Newsletter CTA */}
+      <section className="section bg-gradient-hero text-white">
+        <div className="container-narrow text-center">
+          <span className="text-accent-gold text-sm uppercase tracking-widest">Stay Updated</span>
+          <h2 className="font-display text-3xl md:text-4xl mt-4 mb-6">Join Our Community</h2>
+          <p className="text-stone-300 mb-8 max-w-md mx-auto">
+            Subscribe to get early access to new collections, exclusive offers, and style inspiration.
+          </p>
+          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="flex-1 px-5 py-3.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-stone-400 focus:outline-none focus:border-accent-gold transition-colors"
+            />
+            <button type="submit" className="btn-gold px-6 py-3.5 whitespace-nowrap">
+              Subscribe
+            </button>
+          </form>
+        </div>
       </section>
     </div>
   );

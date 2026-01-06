@@ -12,6 +12,16 @@ const AuthPage = lazy(() => import('./pages/Auth'));
 const CartPage = lazy(() => import('./pages/Cart'));
 const OrdersPage = lazy(() => import('./pages/Orders'));
 
+// Professional loading component
+const PageLoader = ({ message = 'Loading...' }: { message?: string }) => (
+  <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="text-center">
+      <div className="w-10 h-10 mx-auto mb-4 border-3 border-accent-gold border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm text-stone-500 dark:text-stone-400">{message}</p>
+    </div>
+  </div>
+);
+
 const App = () => {
   const queryClient = useMemo(() => new QueryClient({
     defaultOptions: {
@@ -31,7 +41,7 @@ const App = () => {
         {
           index: true,
           element: (
-            <Suspense fallback={<div className="page-loading">Loading...</div>}>
+            <Suspense fallback={<PageLoader />}>
               <HomePage />
             </Suspense>
           )
@@ -39,7 +49,7 @@ const App = () => {
         {
           path: '/catalog',
           element: (
-            <Suspense fallback={<div className="page-loading">Loading catalog...</div>}>
+            <Suspense fallback={<PageLoader message="Loading catalog..." />}>
               <CatalogPage />
             </Suspense>
           )
@@ -47,7 +57,7 @@ const App = () => {
         {
           path: '/auth',
           element: (
-            <Suspense fallback={<div className="page-loading">Loading auth...</div>}>
+            <Suspense fallback={<PageLoader message="Loading..." />}>
               <AuthPage />
             </Suspense>
           )
@@ -55,7 +65,7 @@ const App = () => {
         {
           path: '/cart',
           element: (
-            <Suspense fallback={<div className="page-loading">Loading cart...</div>}>
+            <Suspense fallback={<PageLoader message="Loading cart..." />}>
               <ProtectedRoute>
                 <CartPage />
               </ProtectedRoute>
@@ -65,7 +75,7 @@ const App = () => {
         {
           path: '/orders',
           element: (
-            <Suspense fallback={<div className="page-loading">Loading orders...</div>}>
+            <Suspense fallback={<PageLoader message="Loading orders..." />}>
               <ProtectedRoute>
                 <OrdersPage />
               </ProtectedRoute>

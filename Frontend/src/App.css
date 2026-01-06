@@ -1,13 +1,236 @@
+/* Hero section styles */
 .gradient-hero {
-  background: radial-gradient(circle at 10% 20%, rgba(109, 116, 255, 0.18), transparent 22%),
-    radial-gradient(circle at 80% 0%, rgba(255, 255, 255, 0.16), transparent 20%),
-    linear-gradient(135deg, rgba(9, 10, 14, 0.92), rgba(13, 16, 24, 0.86));
+  background: 
+    linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(26, 26, 26, 0.9) 50%, rgba(40, 35, 29, 0.85) 100%);
 }
 
+.gradient-hero-overlay {
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(201, 169, 98, 0.12), transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(201, 169, 98, 0.08), transparent 40%);
+}
+
+/* Card gradients */
 .gradient-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.35));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
 }
 
-.gradient-card-dark {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+.dark .gradient-card {
+  background: linear-gradient(180deg, rgba(38, 38, 38, 0.9), rgba(26, 26, 26, 0.7));
 }
+
+/* Category card overlay */
+.category-overlay {
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.7) 100%);
+}
+
+/* Product image hover effect */
+.product-hover-overlay {
+  @apply absolute inset-0 bg-black/0 transition-all duration-500;
+}
+
+.group:hover .product-hover-overlay {
+  @apply bg-black/20;
+}
+
+/* Quick add button animation */
+.quick-add-btn {
+  @apply absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-8 opacity-0;
+  @apply transition-all duration-300 ease-out;
+}
+
+.group:hover .quick-add-btn {
+  @apply translate-y-0 opacity-100;
+}
+
+/* Marquee animation for announcement bar */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* Page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+/* Image zoom on scroll effect */
+.parallax-zoom {
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
+/* Luxury text shadow */
+.text-shadow-luxury {
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Button shine effect */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-shine:hover::before {
+  left: 100%;
+}
+
+/* Focus states for accessibility */
+.focus-elegant:focus-visible {
+  outline: 2px solid rgb(201, 169, 98);
+  outline-offset: 2px;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  @apply w-5 h-5 border-2 border-stone-300 border-t-accent-gold rounded-full animate-spin;
+}
+
+/* Toast notifications */
+.toast {
+  @apply fixed bottom-6 right-6 z-50 px-6 py-4 rounded-xl shadow-elegant-xl;
+  @apply bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800;
+  @apply animate-slide-in;
+}
+
+/* Dropdown animation */
+.dropdown-enter {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+.dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: all 200ms ease-out;
+}
+
+/* Mobile menu slide */
+.mobile-menu-enter {
+  transform: translateX(100%);
+}
+
+.mobile-menu-enter-active {
+  transform: translateX(0);
+  transition: transform 300ms ease-out;
+}
+
+/* Wishlist heart animation */
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.1); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.1); }
+}
+
+.animate-heartbeat {
+  animation: heartBeat 0.6s ease-in-out;
+}
+
+/* Price strike through animation */
+.price-strike {
+  position: relative;
+}
+
+.price-strike::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  animation: strikeThrough 0.3s ease-out forwards;
+}
+
+@keyframes strikeThrough {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Elegant underline animation */
+.underline-elegant {
+  position: relative;
+}
+
+.underline-elegant::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background: rgb(201, 169, 98);
+  transition: width 0.3s ease;
+}
+
+.underline-elegant:hover::after {
+  width: 100%;
+}
+
+/* Number counter animation */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-count-up {
+  animation: countUp 0.5s ease-out forwards;
+}
+
+/* Stagger children animation */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeUp 0.5s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 500ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 600ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 700ms; }
+
+/* Responsive image container */
+.img-container {
+  @apply relative overflow-hidden;
+}
+
+.img-container img {
+  @apply w-full h-full object-cover;
+}
+
+/* Cart badge bounce */
+@keyframes cartBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.cart-badge-bounce {
+  animation: cartBounce 0.3s ease-out;
+}
+
