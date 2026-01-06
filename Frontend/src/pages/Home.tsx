@@ -209,7 +209,7 @@ const Home = () => {
             <div className="relative hidden lg:block">
               <div className="relative aspect-[3/4] rounded-3xl overflow-hidden shadow-elegant-xl">
                 <img
-                  src={products[0]?.coverImage || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800'}
+                  src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80"
                   alt="Featured Collection"
                   className="w-full h-full object-cover"
                 />

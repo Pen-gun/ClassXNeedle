@@ -10,20 +10,10 @@ export const restClient = axios.create({
   timeout: 10000
 });
 
-const redirectToAuth = () => {
-  const current = window.location.pathname + window.location.search;
-  if (!current.startsWith('/auth')) {
-    const qs = current ? `?redirectTo=${encodeURIComponent(current)}` : '';
-    window.location.href = `/auth${qs}`;
-  }
-};
-
 restClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error?.response?.status === 401) {
-      redirectToAuth();
-    }
+    // Don't auto-redirect on 401 - let individual components/hooks handle auth
     return Promise.reject(error);
   }
 );
@@ -31,16 +21,9 @@ restClient.interceptors.response.use(
 type GraphQLResponse<T> = { data: T; errors?: { message: string }[] };
 
 const gq = async <T>(query: string, variables?: Record<string, unknown>): Promise<T> => {
-  try {
-    const res = await axios.post<GraphQLResponse<T>>(GRAPHQL_URL, { query, variables }, { withCredentials: true });
-    if (res.data.errors?.length) throw new Error(res.data.errors[0].message);
-    return res.data.data;
-  } catch (error: any) {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      redirectToAuth();
-    }
-    throw error;
-  }
+  const res = await axios.post<GraphQLResponse<T>>(GRAPHQL_URL, { query, variables }, { withCredentials: true });
+  if (res.data.errors?.length) throw new Error(res.data.errors[0].message);
+  return res.data.data;
 };
 
 export const fetchFeaturedProducts = async (): Promise<Product[]> => {
