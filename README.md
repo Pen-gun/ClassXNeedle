@@ -1,172 +1,51 @@
-# ClassXNeedle Backend Quickstart
+# ClassXNeedle — Backend + Frontend
 
-This backend exposes:
-- REST (Create/Update/Delete) under `/api/*`
-- GraphQL (Read) under `/graphql` with GraphiQL enabled in development
+Full-stack setup for the ClassXNeedle clothing brand: REST/GraphQL backend with auth/cart/orders, and a Tailwind + React Query frontend.
 
-## Setup
+## Backend
+**Tech:** Node.js, Express, MongoDB/Mongoose, REST for writes, GraphQL for reads, JWT auth, Multer uploads, Cloudinary.
 
+**Setup**
 ```bash
-# from Backend directory
+cd Backend
 npm install
-# seed initial catalog (optional)
-npm run seed
-# ensure env
-# .env must include MONGODB_URL, PORT, CLIENT_URL, ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET, etc.
+cp example.env .env   # update with your secrets
+npm run seed          # optional: loads demo categories/brands/products
+npm run dev           # starts on PORT (default 3000)
 ```
+Env keys: `MONGODB_URL`, `PORT`, `CLIENT_URL`, `ACCESS_TOKEN_SECRET`, `REFRESH_TOKEN_SECRET`, `CLOUDINARY_*`.
 
-## Run
+**Key endpoints**
+- Auth: `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `POST /api/auth/refresh-token`, `GET /api/auth/me`
+- Products/Categories/Subcategories/Brands: CRUD under `/api/products`, `/api/categories`, `/api/subcategories`, `/api/brands` (multipart for images; admin-only)
+- Reviews: CRUD `/api/reviews`
+- Cart: add/update/remove/clear/coupon under `/api/cart`
+- Orders: create, cancel, admin status/pay under `/api/orders`
+- Coupons: CRUD `/api/coupons` (admin)
+- GraphQL (read-only): `POST /graphql` (GraphiQL in dev)
 
+## Frontend
+**Tech:** Vite + React + TypeScript, Tailwind, TanStack Query, React Router, axios. Light/dark/system theme toggle with persistence. Auth/cart/orders wired to backend (cookies required).
+
+**Setup**
 ```bash
-npm run dev
-# Server: http://localhost:3000
-# GraphQL: http://localhost:3000/graphql
+cd Frontend
+npm install
+# configure .env.local
+# VITE_API_URL=http://localhost:3000/api
+# VITE_GRAPHQL_URL=http://localhost:3000/graphql
+npm run dev    # or npm run build
 ```
 
-## Auth
-- Register: POST `/api/auth/register`
-- Login: POST `/api/auth/login`
-- Logout: POST `/api/auth/logout`
-- Refresh: POST `/api/auth/refresh-token`
-- Change Password: PATCH `/api/auth/change-password`
-
-## Products (Admin)
-- Create: POST `/api/products` (multipart)
-  - fields: `name, description, price, gender, size[], color[], category, subCategory?, brand?`
-  - files: `coverImage` (1), `images` (0..10)
-- Update: PATCH `/api/products/:id` (multipart)
-- Delete: DELETE `/api/products/:id`
-
-## Categories (Admin)
-- Create: POST `/api/categories` (multipart image)
-- Update: PATCH `/api/categories/:id` (multipart image)
-- Delete: DELETE `/api/categories/:id`
-
-## SubCategories (Admin)
-- Create: POST `/api/subcategories`
-- Update: PATCH `/api/subcategories/:id`
-- Delete: DELETE `/api/subcategories/:id`
-
-## Brands (Admin)
-- Create: POST `/api/brands` (multipart image)
-- Update: PATCH `/api/brands/:id`
-- Delete: DELETE `/api/brands/:id`
-
-## Reviews
-- Create: POST `/api/reviews`
-- Update: PATCH `/api/reviews/:id`
-- Delete: DELETE `/api/reviews/:id`
-
-## Cart
-- Add Item: POST `/api/cart/items` { productId, quantity }
-- Update Item: PATCH `/api/cart/items/:productId` { quantity }
-- Remove Item: DELETE `/api/cart/items/:productId`
-- Clear: DELETE `/api/cart`
-- Apply Coupon: POST `/api/cart/coupon` { couponCode }
-- Remove Coupon: DELETE `/api/cart/coupon`
-
-## Orders
-- Create: POST `/api/orders` { address, shippingCost? }
-- Update Status: PATCH `/api/orders/:id/status` { status }
-- Mark Paid: PATCH `/api/orders/:id/pay`
-- Cancel: PATCH `/api/orders/:id/cancel`
-
----
-
-# GraphQL (Read)
-Endpoint: `/graphql` (GraphiQL enabled in dev)
-
-## Sample Queries
-
-### Products list with filters
-```graphql
-query Products {
-  products(filter: { page: 1, limit: 10, search: "shirt", minPrice: 100, maxPrice: 500, sort: "-createdAt" }) {
-    pagination { currentPage totalPages total limit }
-    products {
-      _id
-      name
-      slug
-      price
-      priceAfterDiscount
-      ratingsAverage
-      category { _id name slug }
-      brand { _id name slug }
-    }
-  }
-}
-```
-
-### Single product by slug
-```graphql
-query Product {
-  product(identifier: "cool-shirt-slug") {
-    _id
-    name
-    description
-    price
-    category { name }
-    brand { name }
-  }
-}
-```
-
-### Categories
-```graphql
-query Categories {
-  categories {
-    _id
-    name
-    slug
-    productCount
-  }
-}
-```
-
-### Me (requires auth cookie)
-```graphql
-query Me {
-  me {
-    _id
-    username
-    fullName
-    role
-    active
-    addresses
-  }
-}
-```
-
-### My Orders (requires auth)
-```graphql
-query MyOrders {
-  myOrders(page: 1, limit: 10) {
-    _id
-    orderPrice
-    status
-    isPaid
-    createdAt
-  }
-}
-```
-
-### My Cart (requires auth)
-```graphql
-query MyCart {
-  myCart {
-    _id
-    totalCartPrice
-    priceAfterDiscount
-    cartItem {
-      quantity
-      price
-      productId { _id name slug price }
-    }
-  }
-}
-```
+**Features**
+- Home: hero, categories, best-sellers, lookbook sections.
+- Catalog: filter by category, add to cart.
+- Auth: login/register page using backend auth.
+- Cart: view/update quantities, apply/remove coupon, place order (address required).
+- Orders: view and cancel your orders.
+- Theme: toggle light/dark/system in header; remembers preference.
 
 ## Notes
-- Admin-only routes require `verifyJWT` + admin role.
-- Image uploads use `multer` via `upload.single()` or `upload.fields()`.
-- `express-graphql` is deprecated upstream; consider migrating to `graphql-http` later.
+- Ensure backend CORS `CLIENT_URL` matches frontend origin for cookies.
+- GraphQL queries are read-only; writes go through REST.
+- Seed data provides sample catalog for quick start.
