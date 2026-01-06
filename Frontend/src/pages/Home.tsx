@@ -2,32 +2,14 @@ import { useFeaturedProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
 import type { Product } from '../types';
 
-const collectionDrops = [
-  {
-    title: 'Studio/REPL Capsule',
-    description: 'Tech-inspired silhouettes with reflective piping and modular pockets.',
-    badge: 'Reactive fabrics',
-    cta: 'Explore the capsule',
-    accent: 'repl-card'
-  },
-  {
-    title: 'GraphQL Read-Only Lane',
-    description: 'Browse products, carts, and orders with a single query.',
-    badge: 'Instant preview',
-    cta: 'Inspect schema',
-    accent: 'glow-card'
-  }
-];
-
 const ProductCard = ({ product }: { product: Product }) => (
   <article className="product-card" key={product._id}>
     <div
       className="product-media"
       style={{
-        backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.4)), url(${product.coverImage})`
+        backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.55)), url(${product.coverImage})`
       }}
     >
-      <div className="product-accent" />
       {product.category?.name && <span className="pill">{product.category.name}</span>}
     </div>
     <div className="product-info">
@@ -38,9 +20,7 @@ const ProductCard = ({ product }: { product: Product }) => (
       <div className="price-row">
         <span className="price">
           ${product.priceAfterDiscount ?? product.price ?? 0}
-          {product.priceAfterDiscount && product.price && (
-            <span className="compare">${product.price}</span>
-          )}
+          {product.priceAfterDiscount && product.price && <span className="compare">${product.price}</span>}
         </span>
         <button className="text-button">Add to cart →</button>
       </div>
@@ -48,22 +28,36 @@ const ProductCard = ({ product }: { product: Product }) => (
   </article>
 );
 
+const lookbook = [
+  {
+    title: 'Night Run',
+    copy: 'Reflective piping, breathable layers, built for late city laps.',
+    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1400&q=80'
+  },
+  {
+    title: 'Studio Shift',
+    copy: 'Monochrome tailoring with modular pockets for carry.',
+    image: 'https://images.unsplash.com/photo-1521572153540-5102f3aa7c59?auto=format&fit=crop&w=1400&q=80'
+  }
+];
+
 const Home = () => {
   const { data: products = [], isLoading: loadingProducts } = useFeaturedProducts();
-  const { data: categories = [], isLoading: loadingCategories } = useCategories();
+  const { data: categories = [] } = useCategories();
+
+  const heroProduct = products[0];
 
   return (
     <>
-      <section className="hero" id="collections">
+      <section className="hero hero-elevated" id="collections">
         <div className="hero-copy">
-          <p className="eyebrow">Techwear for kinetic people</p>
-          <h1>Build your look like a Repl — fast, modular, expressive.</h1>
+          <p className="eyebrow">ClassXNeedle Atelier</p>
+          <h1>Urban performance tailoring with a clean studio finish.</h1>
           <p className="lede">
-            Layerable silhouettes, breathable performance fabrics, and bold gradients. Designed for teams that ship,
-            remix, and move.
+            Seasonless layers, breathable tech fabrics, and premium construction inspired by luxury sport labels.
           </p>
           <div className="hero-actions">
-            <button className="solid">Shop the drop</button>
+            <button className="solid">Shop collection</button>
             <button className="ghost">View lookbook</button>
           </div>
           <div className="metrics">
@@ -81,46 +75,71 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="hero-visual">
-          <div className="orb" />
-          <div className="card-stack">
-            {collectionDrops.map((drop) => (
-              <div key={drop.title} className={`feature-card ${drop.accent}`}>
-                <div className="badge">{drop.badge}</div>
-                <h3>{drop.title}</h3>
-                <p>{drop.description}</p>
-                <button className="text-button">{drop.cta} →</button>
-              </div>
-            ))}
+        <div className="hero-visual spotlight">
+          <div className="hero-overlay" />
+          <div className="hero-image" style={{
+            backgroundImage: `linear-gradient(180deg, rgba(8,10,14,0.2), rgba(8,10,14,0.6)), url(${heroProduct?.coverImage || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1400&q=80'})`
+          }} />
+          <div className="hero-badge">
+            <p className="badge">New Capsule</p>
+            <h3>{heroProduct?.name || 'Carbon Stitch Bomber'}</h3>
+            <p>{heroProduct?.description || 'Structured bomber with reflective seams and modular chest pocket.'}</p>
           </div>
         </div>
       </section>
 
-      <section className="pillars" id="services">
-        <div className="pillar-card">
-          <div className="dot pink" />
-          <h4>Fabric lab</h4>
-          <p>Moisture-wicking, four-way stretch, and reflective trims tuned for nighttime city runs.</p>
+      <section className="services" id="services">
+        <div className="service-card">
+          <div className="service-dot" />
+          <div>
+            <h4>Premium materials</h4>
+            <p>Technical nylons, water-repellent finishes, and articulated cuts for movement.</p>
+          </div>
         </div>
-        <div className="pillar-card">
-          <div className="dot teal" />
-          <h4>Express ops</h4>
-          <p>Same-day dispatch on core pieces. Live order tracking via REST + GraphQL.</p>
+        <div className="service-card">
+          <div className="service-dot" />
+          <div>
+            <h4>Express logistics</h4>
+            <p>Same-day processing, tracked shipping, and live order visibility.</p>
+          </div>
         </div>
-        <div className="pillar-card">
-          <div className="dot amber" />
-          <h4>Care & repair</h4>
-          <p>Lifetime stitch guarantee and easy returns. Keep your kit in rotation longer.</p>
+        <div className="service-card">
+          <div className="service-dot" />
+          <div>
+            <h4>Care program</h4>
+            <p>Repairs and refresh for core staples to keep them in rotation longer.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="categories">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">Shop by category</p>
+            <h2>Curated edits for every run of your day</h2>
+          </div>
+        </div>
+        <div className="category-grid">
+          {(categories.slice(0, 4)).map((cat) => (
+            <div key={cat._id} className="category-card" style={{
+              backgroundImage: `linear-gradient(180deg, rgba(10,12,16,0.2), rgba(10,12,16,0.6)), url(${cat.image || 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=900&q=80'})`
+            }}>
+              <div>
+                <p className="badge subtle">Featured</p>
+                <h3>{cat.name}</h3>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
       <section className="products" id="products">
         <div className="section-head">
           <div>
-            <p className="eyebrow">Featured grid</p>
-            <h2>Engineered staples that flex with your day</h2>
+            <p className="eyebrow">Bestsellers</p>
+            <h2>Signature pieces refined for movement</h2>
           </div>
-          <a className="ghost" href="/catalog">View all products</a>
+          <a className="ghost" href="/catalog">View catalog</a>
         </div>
 
         {loadingProducts ? (
@@ -138,18 +157,31 @@ const Home = () => {
         )}
       </section>
 
+      <section className="lookbook">
+        {lookbook.map((entry) => (
+          <div key={entry.title} className="lookbook-card" style={{
+            backgroundImage: `linear-gradient(135deg, rgba(4,5,8,0.35), rgba(4,5,8,0.65)), url(${entry.image})`
+          }}>
+            <div>
+              <p className="badge subtle">Lookbook</p>
+              <h3>{entry.title}</h3>
+              <p>{entry.copy}</p>
+              <button className="text-button">View story →</button>
+            </div>
+          </div>
+        ))}
+      </section>
+
       <section className="cta" id="cta">
         <div>
           <p className="eyebrow">Early access</p>
           <h2>Get first dibs on limited runs and collabs.</h2>
-          <p className="lede">Drop alerts, fit guides, and behind-the-scenes from the ClassXNeedle studio.</p>
-          {!loadingCategories && (
-            <div className="chips">
-              {categories.map((cat) => (
-                <span key={cat._id} className="chip">{cat.name}</span>
-              ))}
-            </div>
-          )}
+          <p className="lede">Drop alerts, fit guides, and studio notes from ClassXNeedle.</p>
+          <div className="chips">
+            {categories.slice(0, 6).map((cat) => (
+              <span key={cat._id} className="chip">{cat.name}</span>
+            ))}
+          </div>
         </div>
         <form className="cta-form">
           <input type="email" placeholder="you@crew.dev" />
