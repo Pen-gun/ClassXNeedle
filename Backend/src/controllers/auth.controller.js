@@ -4,6 +4,12 @@ import ApiResponse from '../utils/ApiResponse.js';
 import { User } from '../Models/users.model.js';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
+const isProduction = process.env.NODE_ENV === 'production';
+const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax'
+};
 // ===============================
 // AUTHENTICATION CONTROLLERS
 // ===============================
@@ -54,16 +60,10 @@ export const registerUser = asyncHandler(async (req, res) => {
     // Remove sensitive data
     const userResponse = await User.findById(user._id).select('-password -refreshToken');
 
-    const options = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-    };
-
     res
         .status(201)
-        .cookie('accessToken', accessToken, options)
-        .cookie('refreshToken', refreshToken, options)
+        .cookie('accessToken', accessToken, cookieOptions)
+        .cookie('refreshToken', refreshToken, cookieOptions)
         .json(new ApiResponse(201, { user: userResponse, accessToken, refreshToken }, "User registered successfully"));
 });
 
@@ -119,16 +119,10 @@ export const loginUser = asyncHandler(async (req, res) => {
     // Remove sensitive data
     const userResponse = await User.findById(user._id).select('-password -refreshToken');
 
-    const options = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-    };
-
     res
         .status(200)
-        .cookie('accessToken', accessToken, options)
-        .cookie('refreshToken', refreshToken, options)
+        .cookie('accessToken', accessToken, cookieOptions)
+        .cookie('refreshToken', refreshToken, cookieOptions)
         .json(new ApiResponse(200, { user: userResponse, accessToken, refreshToken }, "Login successful"));
 });
 
@@ -145,16 +139,10 @@ export const logoutUser = asyncHandler(async (req, res) => {
         { new: true }
     );
 
-    const options = {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-    };
-
     res
         .status(200)
-        .clearCookie('accessToken', options)
-        .clearCookie('refreshToken', options)
+        .clearCookie('accessToken', cookieOptions)
+        .clearCookie('refreshToken', cookieOptions)
         .json(new ApiResponse(200, null, "Logout successful"));
 });
 
@@ -190,16 +178,10 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
         user.refreshToken = refreshToken;
         await user.save({ validateBeforeSave: false });
 
-        const options = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
-        };
-
         res
             .status(200)
-            .cookie('accessToken', accessToken, options)
-            .cookie('refreshToken', refreshToken, options)
+            .cookie('accessToken', accessToken, cookieOptions)
+            .cookie('refreshToken', refreshToken, cookieOptions)
             .json(new ApiResponse(200, { accessToken, refreshToken }, "Access token refreshed"));
     } catch (error) {
         throw new ApiError(401, error?.message || "Invalid refresh token");

@@ -1,6 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { errorHandler } from './middlewares/error.middleware.js';
 
 const app = express()
 
@@ -28,5 +29,7 @@ import { graphqlMiddleware } from './graphql/index.js';
 app.use('/graphql', graphqlMiddleware)
 app.use('/api', routes)
 
+// centralized error handler (returns JSON instead of crashing/HTML)
+app.use(errorHandler);
 
 export default app;
