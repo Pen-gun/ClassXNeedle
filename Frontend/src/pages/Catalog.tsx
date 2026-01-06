@@ -183,7 +183,7 @@ const Catalog = () => {
             </div>
 
             {/* Desktop Category Pills */}
-            <div className="hidden lg:flex items-center gap-2 flex-wrap">
+            <div className="hidden lg:flex items-center gap-2 flex-nowrap overflow-x-auto pb-1">
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   selectedCategory === 'all'
@@ -234,10 +234,10 @@ const Catalog = () => {
               </select>
 
               {/* View Mode Toggle */}
-              <div className="hidden sm:flex items-center border border-stone-200 dark:border-stone-700 rounded-lg overflow-hidden">
+              <div className="hidden sm:flex items-center border border-stone-200 dark:border-stone-700 rounded-lg">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2.5 transition-colors ${
+                  className={`p-2.5 transition-colors rounded-lg ${
                     viewMode === 'grid' 
                       ? 'bg-accent-charcoal text-white dark:bg-accent-cream dark:text-accent-charcoal' 
                       : 'text-stone-500 hover:bg-stone-100 dark:hover:bg-white/10'
@@ -247,7 +247,7 @@ const Catalog = () => {
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2.5 transition-colors ${
+                  className={`p-2.5 transition-colors rounded-lg ${
                     viewMode === 'list' 
                       ? 'bg-accent-charcoal text-white dark:bg-accent-cream dark:text-accent-charcoal' 
                       : 'text-stone-500 hover:bg-stone-100 dark:hover:bg-white/10'
