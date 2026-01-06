@@ -1,5 +1,5 @@
 import { forwardRef, type ButtonHTMLAttributes, type ElementType, type ReactNode } from 'react';
-import { cn } from '../../lib/utils';
+import { cn } from '../../lib/utils.ts';
 
 type IconRenderable = ReactNode | ElementType;
 
