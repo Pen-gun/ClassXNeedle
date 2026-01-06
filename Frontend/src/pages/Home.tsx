@@ -394,27 +394,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Newsletter CTA */}
-      <section className="section bg-gradient-hero text-white">
-        <div className="container-narrow text-center">
-          <span className="text-accent-gold text-sm uppercase tracking-widest">Stay Updated</span>
-          <h2 className="font-display text-3xl md:text-4xl mt-4 mb-6">Join Our Community</h2>
-          <p className="text-stone-300 mb-8 max-w-md mx-auto">
-            Subscribe to get early access to new collections, exclusive offers, and style inspiration.
-          </p>
-          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-5 py-3.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder:text-stone-400 focus:outline-none focus:border-accent-gold transition-colors"
-            />
-            <button type="submit" className="btn-gold px-6 py-3.5 whitespace-nowrap">
-              Subscribe
-            </button>
-          </form>
-        </div>
-      </section>
     </div>
   );
 };
