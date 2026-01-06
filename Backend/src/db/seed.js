@@ -1,11 +1,9 @@
-import dotenv from 'dotenv';
 import connectToDB from './connectionToDb.helper.js';
+import slugify from 'slugify';
 import { Category } from '../Models/category.model.js';
 import { SubCategory } from '../Models/subCategory.model.js';
 import { Brand } from '../Models/brand.model.js';
 import { Product } from '../Models/product.model.js';
-
-dotenv.config({ path: '../.env' });
 
 const categories = [
   { name: 'Outerwear', image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80' },
@@ -120,8 +118,17 @@ const products = [
   }
 ];
 
+const withSlug = (doc) => ({
+  ...doc,
+  slug: slugify(doc.name, { lower: true, strict: true, trim: true })
+});
+
 const upsertByName = async (Model, doc) =>
-  Model.findOneAndUpdate({ name: doc.name }, { $set: doc }, { upsert: true, new: true, setDefaultsOnInsert: true });
+  Model.findOneAndUpdate(
+    { name: doc.name },
+    { $set: withSlug(doc) },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
 
 const seed = async () => {
   await connectToDB();
@@ -137,7 +144,7 @@ const seed = async () => {
     const parentId = categoryDocs[subCategory.category];
     const doc = await SubCategory.findOneAndUpdate(
       { name: subCategory.name },
-      { $set: { ...subCategory, category: parentId } },
+      { $set: { ...withSlug(subCategory), category: parentId } },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
     subCategoryDocs[subCategory.name] = doc._id;
@@ -158,7 +165,7 @@ const seed = async () => {
       { name: product.name },
       {
         $set: {
-          ...product,
+          ...withSlug(product),
           category: categoryId,
           subCategory: subCategoryId,
           brand: brandId
@@ -178,3 +185,5 @@ seed()
     console.error('❌ Seed failed', err);
     process.exit(1);
   });
+
+  export { seed };

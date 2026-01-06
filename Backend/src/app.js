@@ -28,4 +28,5 @@ import { graphqlMiddleware } from './graphql/index.js';
 app.use('/graphql', graphqlMiddleware)
 app.use('/api', routes)
 
+
 export default app;
