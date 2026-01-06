@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react';
 import { useProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
 import { useCartMutations } from '../hooks/useCart';
+import { useRequireAuth } from '../hooks/useAuth';
 import type { Product } from '../types';
 
 const Catalog = () => {
   const { data: products = [], isLoading: loadingProducts } = useProducts();
   const { data: categories = [] } = useCategories();
   const { addItem } = useCartMutations();
+  const requireAuth = useRequireAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const filtered = useMemo(() => {
@@ -92,7 +94,10 @@ const Catalog = () => {
                   </span>
                   <button
                     className="rounded-full bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-900"
-                    onClick={() => addItem.mutate({ productId: product._id, quantity: 1 })}
+                    onClick={() => {
+                      if (!requireAuth()) return;
+                      addItem.mutate({ productId: product._id, quantity: 1 });
+                    }}
                     type="button"
                   >
                     Add to cart

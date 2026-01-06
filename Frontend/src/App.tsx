@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 const HomePage = lazy(() => import('./pages/Home'));
@@ -30,7 +31,7 @@ const App = () => {
         {
           index: true,
           element: (
-            <Suspense fallback={<div className="page-loading">Loading…</div>}>
+            <Suspense fallback={<div className="page-loading">Loading...</div>}>
               <HomePage />
             </Suspense>
           )
@@ -38,7 +39,7 @@ const App = () => {
         {
           path: '/catalog',
           element: (
-            <Suspense fallback={<div className="page-loading">Loading catalog…</div>}>
+            <Suspense fallback={<div className="page-loading">Loading catalog...</div>}>
               <CatalogPage />
             </Suspense>
           )
@@ -46,7 +47,7 @@ const App = () => {
         {
           path: '/auth',
           element: (
-            <Suspense fallback={<div className="page-loading">Loading auth…</div>}>
+            <Suspense fallback={<div className="page-loading">Loading auth...</div>}>
               <AuthPage />
             </Suspense>
           )
@@ -54,16 +55,20 @@ const App = () => {
         {
           path: '/cart',
           element: (
-            <Suspense fallback={<div className="page-loading">Loading cart…</div>}>
-              <CartPage />
+            <Suspense fallback={<div className="page-loading">Loading cart...</div>}>
+              <ProtectedRoute>
+                <CartPage />
+              </ProtectedRoute>
             </Suspense>
           )
         },
         {
           path: '/orders',
           element: (
-            <Suspense fallback={<div className="page-loading">Loading orders…</div>}>
-              <OrdersPage />
+            <Suspense fallback={<div className="page-loading">Loading orders...</div>}>
+              <ProtectedRoute>
+                <OrdersPage />
+              </ProtectedRoute>
             </Suspense>
           )
         }

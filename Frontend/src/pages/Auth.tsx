@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthMutations } from '../hooks/useAuth';
 
 const Auth = () => {
@@ -11,19 +12,29 @@ const Auth = () => {
     password: ''
   });
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = (location.state as { redirectTo?: string })?.redirectTo || '/';
+
   const { loginMutation, registerMutation } = useAuthMutations();
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (mode === 'login') {
-      loginMutation.mutate({ username: form.username || undefined, email: form.email || undefined, password: form.password });
+      loginMutation.mutate(
+        { username: form.username || undefined, email: form.email || undefined, password: form.password },
+        { onSuccess: () => navigate(redirectTo, { replace: true }) }
+      );
     } else {
-      registerMutation.mutate({
-        username: form.username,
-        fullName: form.fullName || form.username,
-        email: form.email || undefined,
-        password: form.password
-      });
+      registerMutation.mutate(
+        {
+          username: form.username,
+          fullName: form.fullName || form.username,
+          email: form.email || undefined,
+          password: form.password
+        },
+        { onSuccess: () => navigate(redirectTo, { replace: true }) }
+      );
     }
   };
 

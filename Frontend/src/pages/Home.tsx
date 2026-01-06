@@ -1,6 +1,7 @@
 import { useFeaturedProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
 import { useCartMutations } from '../hooks/useCart';
+import { useRequireAuth } from '../hooks/useAuth';
 import type { Product } from '../types';
 
 const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string) => void }) => (
@@ -63,6 +64,7 @@ const Home = () => {
   const { data: products = [], isLoading: loadingProducts } = useFeaturedProducts();
   const { data: categories = [] } = useCategories();
   const { addItem } = useCartMutations();
+  const requireAuth = useRequireAuth();
 
   const heroProduct = products[0];
 
@@ -171,7 +173,14 @@ const Home = () => {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {products.map((product) => (
-              <ProductCard product={product} key={product._id} onAdd={(id) => addItem.mutate({ productId: id, quantity: 1 })} />
+              <ProductCard
+                product={product}
+                key={product._id}
+                onAdd={(id) => {
+                  if (!requireAuth()) return;
+                  addItem.mutate({ productId: id, quantity: 1 });
+                }}
+              />
             ))}
           </div>
         )}
