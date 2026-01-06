@@ -11,6 +11,7 @@ const Auth = () => {
     email: '',
     password: ''
   });
+  const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,10 +21,14 @@ const Auth = () => {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
+    setError(null);
     if (mode === 'login') {
       loginMutation.mutate(
         { username: form.username || undefined, email: form.email || undefined, password: form.password },
-        { onSuccess: () => navigate(redirectTo, { replace: true }) }
+        {
+          onSuccess: () => navigate(redirectTo, { replace: true }),
+          onError: (err: any) => setError(err?.response?.data?.message || 'Login failed. Please try again.')
+        }
       );
     } else {
       registerMutation.mutate(
@@ -33,7 +38,10 @@ const Auth = () => {
           email: form.email || undefined,
           password: form.password
         },
-        { onSuccess: () => navigate(redirectTo, { replace: true }) }
+        {
+          onSuccess: () => navigate(redirectTo, { replace: true }),
+          onError: (err: any) => setError(err?.response?.data?.message || 'Registration failed. Please try again.')
+        }
       );
     }
   };
@@ -58,6 +66,11 @@ const Auth = () => {
       </div>
 
       <form onSubmit={onSubmit} className="glass rounded-2xl p-6 space-y-4">
+        {error && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800/40 dark:bg-red-900/30 dark:text-red-100">
+            {error}
+          </div>
+        )}
         {mode === 'register' && (
           <div className="space-y-1">
             <label className="text-sm font-medium">Full name</label>
