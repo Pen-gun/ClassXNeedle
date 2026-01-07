@@ -183,7 +183,7 @@ const Catalog = () => {
             </div>
 
             {/* Desktop Category Pills */}
-            <div className="hidden lg:flex items-center gap-2 flex-nowrap overflow-x-auto pb-1">
+            <div className="hidden lg:flex items-center gap-2 flex-nowrap">
               <button
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   selectedCategory === 'all'
