@@ -276,7 +276,29 @@ export const resolvers = {
       { $unwind: { path: '$cartItem', preserveNullAndEmptyArrays: true } },
       { $lookup: { from: 'products', localField: 'cartItem.productId', foreignField: '_id', as: 'cartItem.product' } },
       { $unwind: { path: '$cartItem.product', preserveNullAndEmptyArrays: true } },
-      { $group: { _id: '$_id', cartItem: { $push: '$cartItem' }, totalCartPrice: { $first: '$totalCartPrice' }, priceAfterDiscount: { $first: '$priceAfterDiscount' }, customer: { $first: '$customer' }, createdAt: { $first: '$createdAt' } } },
+      { $addFields: { 'cartItem.productId': '$cartItem.product' } },
+      { $project: { 'cartItem.product': 0 } },
+      {
+        $group: {
+          _id: '$_id',
+          cartItem: { $push: '$cartItem' },
+          totalCartPrice: { $first: '$totalCartPrice' },
+          priceAfterDiscount: { $first: '$priceAfterDiscount' },
+          customer: { $first: '$customer' },
+          createdAt: { $first: '$createdAt' }
+        }
+      },
+      {
+        $addFields: {
+          cartItem: {
+            $filter: {
+              input: '$cartItem',
+              as: 'item',
+              cond: { $ne: ['$$item.productId', null] }
+            }
+          }
+        }
+      },
       { $limit: 1 }
     ]);
 
