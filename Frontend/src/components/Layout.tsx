@@ -35,10 +35,10 @@ const Layout = () => {
       <div className="bg-accent-charcoal dark:bg-stone-900 text-white py-2.5 overflow-hidden">
         <div className="animate-marquee whitespace-nowrap flex">
           <span className="mx-8 text-xs tracking-widest uppercase">
-            ✦ Free Shipping on Orders Over $150 ✦ New Season Collection Available ✦ Complimentary Gift Wrapping ✦ Free Shipping on Orders Over $150 ✦ New Season Collection Available ✦ Complimentary Gift Wrapping ✦
+            ✦ Free Shipping on Orders Over Rs. 150 ✦ New Season Collection Available ✦ Complimentary Gift Wrapping ✦ Free Shipping on Orders Over Rs. 150 ✦ New Season Collection Available ✦ Complimentary Gift Wrapping ✦
           </span>
           <span className="mx-8 text-xs tracking-widest uppercase">
-            ✦ Free Shipping on Orders Over $150 ✦ New Season Collection Available ✦ Complimentary Gift Wrapping ✦ Free Shipping on Orders Over $150 ✦ New Season Collection Available ✦ Complimentary Gift Wrapping ✦
+            ✦ Free Shipping on Orders Over Rs. 150 ✦ New Season Collection Available ✦ Complimentary Gift Wrapping ✦ Free Shipping on Orders Over Rs. 150 ✦ New Season Collection Available ✦ Complimentary Gift Wrapping ✦
           </span>
         </div>
       </div>
@@ -339,4 +339,3 @@ const Layout = () => {
 };
 
 export default Layout;
-

@@ -4,6 +4,7 @@ import { useFeaturedProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
 import { useCartMutations } from '../hooks/useCart';
 import { useRequireAuth } from '../hooks/useAuth';
+import { formatPrice } from '../lib/utils';
 import type { Product, Category } from '../types';
 
 // Product Card Component
@@ -70,8 +71,8 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
         </p>
 
         <div className="flex items-center gap-2 pt-1">
-          <span className="price text-lg">${product.priceAfterDiscount ?? product.price ?? 0}</span>
-          {hasDiscount && <span className="price-original">${product.price}</span>}
+          <span className="price text-lg">{formatPrice(product.priceAfterDiscount ?? product.price ?? 0)}</span>
+          {hasDiscount && <span className="price-original">{formatPrice(product.price ?? 0)}</span>}
         </div>
       </div>
     </article>
@@ -100,7 +101,7 @@ const CategoryCard = ({ category }: { category: Category }) => (
 
 // Features data
 const features = [
-  { icon: <Truck className="w-6 h-6" />, title: 'Free Shipping', description: 'On orders over $150' },
+  { icon: <Truck className="w-6 h-6" />, title: 'Free Shipping', description: 'On orders over Rs. 150' },
   { icon: <ShieldCheck className="w-6 h-6" />, title: 'Secure Payment', description: '100% secure checkout' },
   { icon: <Sparkles className="w-6 h-6" />, title: 'Premium Quality', description: 'Finest materials' },
   { icon: <Heart className="w-6 h-6" />, title: 'Easy Returns', description: '30-day returns' },

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useOrders, useOrderMutations } from '../hooks/useOrders';
+import { formatPrice } from '../lib/utils';
 import type { Order } from '../types';
 
 // Icons
@@ -96,7 +97,7 @@ const OrderCard = ({ order, onCancel }: { order: Order; onCancel: () => void }) 
             <div className="text-right">
               <p className="text-sm text-stone-500 dark:text-stone-400">Total</p>
               <p className="text-lg font-semibold text-accent-charcoal dark:text-accent-cream">
-                ${order.orderPrice.toFixed(2)}
+                {formatPrice(order.orderPrice)}
               </p>
             </div>
             {order.status !== 'Cancelled' && order.status !== 'Delivered' && (
@@ -165,7 +166,7 @@ const OrderCard = ({ order, onCancel }: { order: Order; onCancel: () => void }) 
             <div className="pt-4 border-t border-stone-200 dark:border-stone-700">
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-stone-500 dark:text-stone-400">Subtotal</span>
-                <span>${order.orderPrice.toFixed(2)}</span>
+                <span>{formatPrice(order.orderPrice)}</span>
               </div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-stone-500 dark:text-stone-400">Shipping</span>
@@ -173,7 +174,7 @@ const OrderCard = ({ order, onCancel }: { order: Order; onCancel: () => void }) 
               </div>
               <div className="flex justify-between font-semibold mt-2 pt-2 border-t border-stone-200 dark:border-stone-700">
                 <span>Total</span>
-                <span>${order.orderPrice.toFixed(2)}</span>
+                <span>{formatPrice(order.orderPrice)}</span>
               </div>
             </div>
           </div>

@@ -12,8 +12,12 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * Format price with currency symbol
  */
-export function formatPrice(price: number, currency = '$'): string {
-  return `${currency}${price.toFixed(2)}`;
+export function formatPrice(price: number, currency = 'Rs.'): string {
+  const formatted = new Intl.NumberFormat('en-NP', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(price);
+  return `${currency} ${formatted}`;
 }
 
 /**

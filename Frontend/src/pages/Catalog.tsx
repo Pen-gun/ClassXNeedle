@@ -5,6 +5,7 @@ import { useProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
 import { useCartMutations } from '../hooks/useCart';
 import { useRequireAuth } from '../hooks/useAuth';
+import { formatPrice } from '../lib/utils';
 import type { Product } from '../types';
 
 // Product Card Component
@@ -71,8 +72,8 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
         </p>
 
         <div className="flex items-center gap-2 pt-1">
-          <span className="price text-lg">${product.priceAfterDiscount ?? product.price ?? 0}</span>
-          {hasDiscount && <span className="price-original">${product.price}</span>}
+          <span className="price text-lg">{formatPrice(product.priceAfterDiscount ?? product.price ?? 0)}</span>
+          {hasDiscount && <span className="price-original">{formatPrice(product.price ?? 0)}</span>}
         </div>
       </div>
     </article>

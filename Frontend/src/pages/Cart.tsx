@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Trash2, Minus, Plus, Tag, ShieldCheck, Truck, RefreshCw, ShoppingBag, Lock, MapPin, X } from 'lucide-react';
 import { useCart, useCartMutations } from '../hooks/useCart';
 import { useOrderMutations } from '../hooks/useOrders';
+import { formatPrice } from '../lib/utils';
 
 interface CartItemType {
   productId: {
@@ -179,10 +180,10 @@ const Cart = () => {
                         {/* Price */}
                         <div className="text-right">
                           <p className="text-lg font-semibold text-accent-charcoal dark:text-accent-cream">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {formatPrice(item.price * item.quantity)}
                           </p>
                           <p className="text-xs text-stone-500">
-                            ${item.price.toFixed(2)} each
+                            {formatPrice(item.price)} each
                           </p>
                         </div>
                       </div>
@@ -266,12 +267,12 @@ const Cart = () => {
                   <div className="space-y-3 py-4 border-t border-stone-200 dark:border-stone-700">
                     <div className="flex justify-between text-sm">
                       <span className="text-stone-500 dark:text-stone-400">Subtotal</span>
-                      <span>${totals.subtotal.toFixed(2)}</span>
+                      <span>{formatPrice(totals.subtotal)}</span>
                     </div>
                     {totals.discount > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-green-600 dark:text-green-400">Discount</span>
-                        <span className="text-green-600 dark:text-green-400">-${totals.discount.toFixed(2)}</span>
+                        <span className="text-green-600 dark:text-green-400">-{formatPrice(totals.discount)}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-sm">
@@ -280,13 +281,13 @@ const Cart = () => {
                         {totals.shipping === 0 ? (
                           <span className="text-green-600 dark:text-green-400">Free</span>
                         ) : (
-                          `$${totals.shipping.toFixed(2)}`
+                          formatPrice(totals.shipping)
                         )}
                       </span>
                     </div>
                     {totals.subtotal < 100 && (
                       <p className="text-xs text-stone-500 dark:text-stone-400 bg-stone-50 dark:bg-white/5 p-2 rounded-lg">
-                        💡 Add ${(100 - totals.subtotal).toFixed(2)} more for free shipping
+                        💡 Add {formatPrice(100 - totals.subtotal)} more for free shipping
                       </p>
                     )}
                   </div>
@@ -295,7 +296,7 @@ const Cart = () => {
                   <div className="flex justify-between items-center py-4 border-t border-stone-200 dark:border-stone-700">
                     <span className="font-semibold">Total</span>
                     <span className="text-2xl font-bold text-accent-charcoal dark:text-accent-cream">
-                      ${totals.total.toFixed(2)}
+                      {formatPrice(totals.total)}
                     </span>
                   </div>
 
