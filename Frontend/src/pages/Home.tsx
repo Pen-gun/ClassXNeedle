@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Truck, ShieldCheck, Sparkles, Heart, ShoppingBag } from 'lucide-react';
+import { ArrowRight, Star, Truck, ShieldCheck, Sparkles, Heart, ShoppingBag, CheckCircle2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useFeaturedProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
@@ -368,7 +368,12 @@ const Home = () => {
           </div>
         </div>
       </section>
-      {toast && <div className="toast">{toast}</div>}
+      {toast && (
+        <div className="toast toast-success">
+          <CheckCircle2 className="w-5 h-5" />
+          <span>{toast}</span>
+        </div>
+      )}
     </div>
   );
 };

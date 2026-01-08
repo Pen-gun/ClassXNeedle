@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { SlidersHorizontal, LayoutGrid, List, Star, Heart, ShoppingBag, X, Search } from 'lucide-react';
+import { SlidersHorizontal, LayoutGrid, List, Star, Heart, ShoppingBag, X, Search, CheckCircle2 } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
 import { useCartMutations } from '../hooks/useCart';
@@ -366,7 +366,12 @@ const Catalog = () => {
           )}
         </div>
       </section>
-      {toast && <div className="toast">{toast}</div>}
+      {toast && (
+        <div className="toast toast-success">
+          <CheckCircle2 className="w-5 h-5" />
+          <span>{toast}</span>
+        </div>
+      )}
     </div>
   );
 };
