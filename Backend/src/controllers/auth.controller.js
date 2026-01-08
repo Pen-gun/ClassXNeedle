@@ -84,14 +84,17 @@ export const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Username, email, or phone is required");
     }
 
+    const orConditions = [];
+    if (username?.trim()) orConditions.push({ username: username.toLowerCase() });
+    if (email?.trim()) orConditions.push({ email: email.toLowerCase() });
+    if (phone) orConditions.push({ phone });
+
+    if (orConditions.length === 0) {
+        throw new ApiError(400, "Username, email, or phone is required");
+    }
+
     // Find user
-    const user = await User.findOne({
-        $or: [
-            { username: username?.toLowerCase() },
-            { email: email?.toLowerCase() },
-            { phone }
-        ]
-    });
+    const user = await User.findOne({ $or: orConditions });
 
     if (!user) {
         throw new ApiError(401, "Invalid credentials");
