@@ -187,6 +187,7 @@ const Catalog = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 input"
+                autoFocus
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400">
                 <Search className="w-5 h-5" />

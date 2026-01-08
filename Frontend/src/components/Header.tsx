@@ -70,9 +70,9 @@ const Header = () => {
             <div className="flex items-center gap-2">
               <ThemeToggle value={theme} onChange={setTheme} />
 
-              <button className="btn-icon hidden sm:flex" aria-label="Search">
+              <Link to="/catalog" className="btn-icon">
                 <Search className="w-5 h-5" />
-              </button>
+              </Link>
 
               <Link to="/cart" className="btn-icon relative">
                 <ShoppingBag className="w-5 h-5" />
