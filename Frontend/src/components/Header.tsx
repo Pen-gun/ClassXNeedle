@@ -101,13 +101,22 @@ const Header = () => {
                           <p className="text-sm font-semibold">{me.fullName || me.username}</p>
                           <p className="text-xs text-stone-500">{me.email || 'Member'}</p>
                         </div>
+                        {me.role === 'admin' && (
                         <Link
-                          to="/orders"
+                          to="/admin"
                           className="block px-4 py-2 text-sm hover:bg-stone-50 dark:hover:bg-stone-800"
                           onClick={() => setUserMenuOpen(false)}
                         >
-                          My Orders
+                          Admin Dashboard
                         </Link>
+                          )}
+                          <Link
+                            to="/orders"
+                            className="block px-4 py-2 text-sm hover:bg-stone-50 dark:hover:bg-stone-800"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            My Orders
+                          </Link>
                         <button
                           onClick={() => {
                             handleLogout();
