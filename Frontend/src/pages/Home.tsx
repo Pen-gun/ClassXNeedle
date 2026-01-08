@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Star, Truck, ShieldCheck, Sparkles, Heart, ShoppingBag } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useFeaturedProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
 import { useCartMutations } from '../hooks/useCart';
@@ -112,11 +113,21 @@ const Home = () => {
   const { data: categories = [] } = useCategories();
   const { addItem } = useCartMutations();
   const requireAuth = useRequireAuth();
+  const [toast, setToast] = useState<string | null>(null);
 
   const handleAddToCart = (productId: string) => {
     if (!requireAuth()) return;
-    addItem.mutate({ productId, quantity: 1 });
+    addItem.mutate(
+      { productId, quantity: 1 },
+      { onSuccess: () => setToast('Added to cart') }
+    );
   };
+
+  useEffect(() => {
+    if (!toast) return;
+    const id = window.setTimeout(() => setToast(null), 2200);
+    return () => window.clearTimeout(id);
+  }, [toast]);
 
   return (
     <div className="space-y-0">
@@ -357,6 +368,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+      {toast && <div className="toast">{toast}</div>}
     </div>
   );
 };

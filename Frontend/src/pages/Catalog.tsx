@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SlidersHorizontal, LayoutGrid, List, Star, Heart, ShoppingBag, X, Search } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
@@ -100,6 +100,7 @@ const Catalog = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [toast, setToast] = useState<string | null>(null);
 
   const handleCategoryChange = (slug: string) => {
     if (slug === 'all') {
@@ -146,8 +147,17 @@ const Catalog = () => {
 
   const handleAddToCart = (productId: string) => {
     if (!requireAuth()) return;
-    addItem.mutate({ productId, quantity: 1 });
+    addItem.mutate(
+      { productId, quantity: 1 },
+      { onSuccess: () => setToast('Added to cart') }
+    );
   };
+
+  useEffect(() => {
+    if (!toast) return;
+    const id = window.setTimeout(() => setToast(null), 2200);
+    return () => window.clearTimeout(id);
+  }, [toast]);
 
   return (
     <div className="min-h-screen bg-accent-cream dark:bg-[#0f0f0f]">
@@ -356,6 +366,7 @@ const Catalog = () => {
           )}
         </div>
       </section>
+      {toast && <div className="toast">{toast}</div>}
     </div>
   );
 };

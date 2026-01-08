@@ -49,6 +49,7 @@ const Cart = () => {
 
   const handleCheckout = () => {
     if (!address.trim()) return;
+    if (!window.confirm('Are you sure you want to place this order?')) return;
     create.mutate({ address });
   };
 
