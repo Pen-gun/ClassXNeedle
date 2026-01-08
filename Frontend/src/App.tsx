@@ -9,6 +9,7 @@ import './App.css';
 const HomePage = lazy(() => import('./pages/Home'));
 const CatalogPage = lazy(() => import('./pages/Catalog'));
 const AuthPage = lazy(() => import('./pages/Auth'));
+const AdminLoginPage = lazy(() => import('./pages/AdminLogin'));
 const CartPage = lazy(() => import('./pages/Cart'));
 const OrdersPage = lazy(() => import('./pages/Orders'));
 
@@ -34,6 +35,14 @@ const App = () => {
   }), []);
 
   const router = useMemo(() => createBrowserRouter([
+    {
+      path: '/admin',
+      element: (
+        <Suspense fallback={<PageLoader message="Loading admin access..." />}>
+          <AdminLoginPage />
+        </Suspense>
+      )
+    },
     {
       path: '/',
       element: <Layout />,
