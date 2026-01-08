@@ -1,12 +1,8 @@
-import { Link, Outlet } from 'react-router-dom';
-import { useMe } from '../hooks/useAuth';
+import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
-import { LayoutDashboard } from 'lucide-react';
-
 
 const Layout = () => {
-  const { data: me } = useMe();
 
   return (
     <div className="min-h-screen flex flex-col">
