@@ -307,8 +307,17 @@ const Cart = () => {
                     disabled={create.isPending || !address.trim()}
                     className="btn-gold w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Lock className="w-4 h-4" />
-                    {create.isPending ? 'Processing...' : 'Place Order'}
+                    {create.isPending ? (
+                      <>
+                        <span className="loading-spinner" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-4 h-4" />
+                        Place Order
+                      </>
+                    )}
                   </button>
 
                   {!address.trim() && (

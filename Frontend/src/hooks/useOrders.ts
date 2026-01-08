@@ -13,7 +13,10 @@ export const useOrderMutations = () => {
 
   const create = useMutation({
     mutationFn: createOrder,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['orders'] })
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['orders'] });
+      qc.invalidateQueries({ queryKey: ['cart'] });
+    }
   });
 
   const cancel = useMutation({
