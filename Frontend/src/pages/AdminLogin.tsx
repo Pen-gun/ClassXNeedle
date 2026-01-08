@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -26,7 +26,7 @@ const AdminLogin = () => {
   const { loginMutation, logoutMutation } = useAuthMutations();
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectTo = (location.state as { redirectTo?: string })?.redirectTo || '/admin';
+  const redirectTo = (location.state as { redirectTo?: string })?.redirectTo || '/admin/dashboard';
   const isLoading = loginMutation.isPending;
 
   const statusCards = useMemo(
@@ -75,6 +75,12 @@ const AdminLogin = () => {
 
   const alreadyAdmin = me?.role === 'admin';
   const signedInAsUser = me && me.role !== 'admin';
+
+  useEffect(() => {
+    if (alreadyAdmin) {
+      navigate(redirectTo, { replace: true });
+    }
+  }, [alreadyAdmin, navigate, redirectTo]);
 
   return (
     <div className="min-h-screen bg-[#0b0d10] text-white relative overflow-hidden">

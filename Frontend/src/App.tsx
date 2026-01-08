@@ -4,12 +4,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 import './App.css';
 
 const HomePage = lazy(() => import('./pages/Home'));
 const CatalogPage = lazy(() => import('./pages/Catalog'));
 const AuthPage = lazy(() => import('./pages/Auth'));
 const AdminLoginPage = lazy(() => import('./pages/AdminLogin'));
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboard'));
 const CartPage = lazy(() => import('./pages/Cart'));
 const OrdersPage = lazy(() => import('./pages/Orders'));
 
@@ -40,6 +42,16 @@ const App = () => {
       element: (
         <Suspense fallback={<PageLoader message="Loading admin access..." />}>
           <AdminLoginPage />
+        </Suspense>
+      )
+    },
+    {
+      path: '/admin/dashboard',
+      element: (
+        <Suspense fallback={<PageLoader message="Loading admin dashboard..." />}>
+          <AdminRoute>
+            <AdminDashboardPage />
+          </AdminRoute>
         </Suspense>
       )
     },

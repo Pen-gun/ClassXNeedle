@@ -8,6 +8,7 @@ import cartRoutes from './cart.routes.js';
 import orderRoutes from './order.routes.js';
 import couponRoutes from './coupon.routes.js';
 import authRoutes from './auth.routes.js';
+import userRoutes from './user.routes.js';
 
 const router = express.Router();
 
@@ -23,5 +24,6 @@ router.use('/reviews', reviewRoutes);
 router.use('/cart', cartRoutes);
 router.use('/orders', orderRoutes);
 router.use('/coupons', couponRoutes);
+router.use('/users', userRoutes);
 
 export default router;
