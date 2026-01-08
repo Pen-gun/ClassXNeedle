@@ -5,6 +5,7 @@ import { useMe, useAuthMutations } from '../hooks/useAuth';
 import { useCart } from '../hooks/useCart';
 import ThemeToggle from './ThemeToggle';
 import { useTheme } from '../hooks/useTheme';
+import { footerSections, footerSocials, mainNav } from '../lib/navigation';
 
 const Layout = () => {
   const { data: me } = useMe();
@@ -23,11 +24,7 @@ const Layout = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { to: '/', label: 'Home', end: true },
-    { to: '/catalog', label: 'Shop' },
-    { to: '/orders', label: 'Orders' },
-  ];
+  const navLinks = mainNav;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -275,50 +272,48 @@ const Layout = () => {
                 Premium clothing crafted with precision and passion. Where timeless elegance meets modern sophistication.
               </p>
               <div className="flex items-center gap-4">
-                <a href="#" className="text-stone-400 hover:text-accent-gold transition-colors">
-                  <Instagram  />
-                </a>
-                <a href="#" className="text-stone-400 hover:text-accent-gold transition-colors">
-                  <Twitter  />
-                </a>
-                <a href="#" className="text-stone-400 hover:text-accent-gold transition-colors">
-                  <PinIcon  />
-                </a>
+                {footerSocials.map((social) => {
+                  const icon =
+                    social.label === 'Instagram'
+                      ? Instagram
+                      : social.label === 'Twitter'
+                        ? Twitter
+                        : PinIcon;
+                  const Icon = icon;
+                  return (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      aria-label={social.label}
+                      className="text-stone-400 hover:text-accent-gold transition-colors"
+                    >
+                      <Icon />
+                    </a>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Shop Column */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-sm uppercase tracking-wider">Shop</h4>
-              <ul className="space-y-3 text-sm text-stone-400">
-                <li><Link to="/catalog" className="hover:text-accent-gold transition-colors">New Arrivals</Link></li>
-                <li><Link to="/catalog" className="hover:text-accent-gold transition-colors">Bestsellers</Link></li>
-                <li><Link to="/catalog" className="hover:text-accent-gold transition-colors">Collections</Link></li>
-                <li><Link to="/catalog" className="hover:text-accent-gold transition-colors">Sale</Link></li>
-              </ul>
-            </div>
-
-            {/* Help Column */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-sm uppercase tracking-wider">Help</h4>
-              <ul className="space-y-3 text-sm text-stone-400">
-                <li><a href="#" className="hover:text-accent-gold transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-accent-gold transition-colors">Shipping Info</a></li>
-                <li><a href="#" className="hover:text-accent-gold transition-colors">Returns & Exchanges</a></li>
-                <li><a href="#" className="hover:text-accent-gold transition-colors">Size Guide</a></li>
-              </ul>
-            </div>
-
-            {/* Company Column */}
-            <div className="space-y-4">
-              <h4 className="font-semibold text-sm uppercase tracking-wider">Company</h4>
-              <ul className="space-y-3 text-sm text-stone-400">
-                <li><a href="#" className="hover:text-accent-gold transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-accent-gold transition-colors">Sustainability</a></li>
-                <li><a href="#" className="hover:text-accent-gold transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-accent-gold transition-colors">Press</a></li>
-              </ul>
-            </div>
+            {footerSections.map((section) => (
+              <div key={section.title} className="space-y-4">
+                <h4 className="font-semibold text-sm uppercase tracking-wider">{section.title}</h4>
+                <ul className="space-y-3 text-sm text-stone-400">
+                  {section.links.map((link) => (
+                    <li key={link.label}>
+                      {link.to.startsWith('#') ? (
+                        <a href={link.to} className="hover:text-accent-gold transition-colors">
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link to={link.to} className="hover:text-accent-gold transition-colors">
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
 
