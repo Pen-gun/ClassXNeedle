@@ -60,6 +60,7 @@ const Cart = () => {
 
   const handleCheckout = () => {
     if (!address.trim()) return;
+    if (outOfStockItems.length > 0) return;
     if (!window.confirm('Are you sure you want to place this order?')) return;
     create.mutate({ address });
   };
@@ -321,7 +322,7 @@ const Cart = () => {
                   {/* Checkout Button */}
                   <button
                     onClick={handleCheckout}
-                    disabled={create.isPending || !address.trim() || inStockItems.length === 0}
+                    disabled={create.isPending || !address.trim() || inStockItems.length === 0 || outOfStockItems.length > 0}
                     className="btn-gold w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {create.isPending ? (
@@ -345,6 +346,11 @@ const Cart = () => {
                   {inStockItems.length === 0 && (
                     <p className="text-xs text-stone-500 dark:text-stone-400 text-center mt-2">
                       Remove out of stock items to place an order.
+                    </p>
+                  )}
+                  {outOfStockItems.length > 0 && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-2">
+                      Please remove out of stock items before placing your order.
                     </p>
                   )}
 
@@ -374,6 +380,7 @@ const Cart = () => {
                 </div>
               </div>
             </div>
+            )}
 
             {outOfStockItems.length > 0 && (
               <div className="mt-10">
@@ -418,7 +425,6 @@ const Cart = () => {
                 </div>
               </div>
             )}
-          )}
         </div>
       </section>
     </div>
