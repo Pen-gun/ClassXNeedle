@@ -197,7 +197,7 @@ export const removeCoupon = async () => {
   return res.data?.data;
 };
 
-export const createOrder = async (payload: { address: string; shippingCost?: number }) => {
+export const createOrder = async (payload: { address: string; shippingCost?: number; items?: { productId: string; quantity: number }[] }) => {
   const res = await restClient.post('/orders', payload);
   return res.data?.data;
 };

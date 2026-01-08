@@ -4,6 +4,7 @@ import ApiResponse from '../utils/ApiResponse.js';
 import { Order } from '../Models/order.model.js';
 import { Cart } from '../Models/cart.model.js';
 import { Product } from '../Models/product.model.js';
+import { Coupon } from '../Models/coupon.model.js';
 import mongoose from 'mongoose';
 
 // ===============================
@@ -16,7 +17,7 @@ import mongoose from 'mongoose';
  * @access  Private
  */
 export const createOrder = asyncHandler(async (req, res) => {
-    const { address, shippingCost = 0 } = req.body;
+    const { address, shippingCost = 0, items } = req.body;
     const customerId = req.user._id;
 
     if (!address) {
@@ -30,8 +31,15 @@ export const createOrder = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Cart is empty");
     }
 
+    const selectedItems = Array.isArray(items) && items.length > 0
+        ? items
+        : cart.cartItem.map((item) => ({
+            productId: item.productId._id,
+            quantity: item.quantity
+        }));
+
     // Validate product availability and quantities
-    for (const item of cart.cartItem) {
+    for (const item of selectedItems) {
         const product = await Product.findById(item.productId);
         if (!product) {
             throw new ApiError(404, `Product ${item.productId} not found`);
@@ -42,12 +50,32 @@ export const createOrder = asyncHandler(async (req, res) => {
     }
 
     // Create order items
-    const orderItems = cart.cartItem.map(item => ({
-        productId: item.productId._id,
-        quantity: item.quantity
-    }));
+    const cartMap = new Map(
+        cart.cartItem.map((item) => [item.productId._id.toString(), item])
+    );
+    const orderItems = selectedItems.map((item) => {
+        const cartItem = cartMap.get(item.productId.toString());
+        if (!cartItem) {
+            throw new ApiError(400, "Selected item not found in cart");
+        }
+        if (cartItem.quantity < item.quantity) {
+            throw new ApiError(400, "Selected quantity exceeds cart quantity");
+        }
+        return {
+            productId: cartItem.productId._id,
+            quantity: item.quantity
+        };
+    });
 
-    const orderPrice = cart.priceAfterDiscount || cart.totalCartPrice;
+    const subtotal = selectedItems.reduce((sum, item) => {
+        const cartItem = cartMap.get(item.productId.toString());
+        return sum + (cartItem?.price || 0) * item.quantity;
+    }, 0);
+    const discountRate = cart.totalCartPrice > 0 && cart.priceAfterDiscount
+        ? cart.priceAfterDiscount / cart.totalCartPrice
+        : 1;
+    const discountedSubtotal = subtotal * discountRate;
+    const orderPrice = discountedSubtotal + shippingCost;
 
     // Create order
     const order = await Order.create({
@@ -55,19 +83,38 @@ export const createOrder = asyncHandler(async (req, res) => {
         customer: customerId,
         address,
         shippingCost,
-        orderPrice: orderPrice + shippingCost
+        orderPrice
     });
 
     // Update product quantities
-    for (const item of cart.cartItem) {
+    for (const item of selectedItems) {
         await Product.findByIdAndUpdate(
-            item.productId._id,
+            item.productId,
             { $inc: { quantity: -item.quantity } }
         );
     }
 
-    // Clear cart
-    await Cart.findByIdAndDelete(cart._id);
+    // Remove selected items from cart
+    cart.cartItem = cart.cartItem.filter(
+        (item) => !selectedItems.find((selected) => selected.productId.toString() === item.productId._id.toString())
+    );
+    if (cart.cartItem.length === 0) {
+        await Cart.findByIdAndDelete(cart._id);
+    } else {
+        cart.calculateTotalPrice();
+        if (cart.discount) {
+            const coupon = await Coupon.findById(cart.discount);
+            if (coupon && (!coupon.expirationDate || new Date(coupon.expirationDate) >= new Date())) {
+                cart.priceAfterDiscount = cart.totalCartPrice - (cart.totalCartPrice * coupon.discountPercentage / 100);
+            } else {
+                cart.discount = undefined;
+                cart.priceAfterDiscount = undefined;
+            }
+        } else {
+            cart.priceAfterDiscount = undefined;
+        }
+        await cart.save();
+    }
 
     // Fetch created order with populated fields
     const createdOrder = await Order.findById(order._id)

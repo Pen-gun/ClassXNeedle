@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Trash2, Minus, Plus, Tag, ShieldCheck, Truck, RefreshCw, ShoppingBag, Lock, MapPin, X } from 'lucide-react';
 import { useCart, useCartMutations } from '../hooks/useCart';
@@ -25,6 +25,7 @@ const Cart = () => {
   const [coupon, setCoupon] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
   const [address, setAddress] = useState('');
+  const [selectedIds, setSelectedIds] = useState<Record<string, boolean>>({});
 
   const items: CartItemType[] = cart?.cartItem ?? [];
   const inStockItems = items.filter(
@@ -33,17 +34,29 @@ const Cart = () => {
   const outOfStockItems = items.filter(
     (item) => item.productId.quantity !== undefined && item.productId.quantity <= 0
   );
+  const selectedInStockItems = inStockItems.filter((item) => selectedIds[item.productId._id]);
+
+  useEffect(() => {
+    setSelectedIds((prev) => {
+      const next: Record<string, boolean> = {};
+      for (const item of inStockItems) {
+        const id = item.productId._id;
+        next[id] = prev[id] ?? true;
+      }
+      return next;
+    });
+  }, [inStockItems]);
 
   const totals = useMemo(() => {
     const subtotalAll = cart?.totalCartPrice || 0;
-    const subtotal = inStockItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const subtotal = selectedInStockItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const discountRate = subtotalAll > 0 && cart?.priceAfterDiscount
       ? cart.priceAfterDiscount / subtotalAll
       : 1;
     const discounted = subtotal * discountRate;
     const shipping = subtotal === 0 ? 0 : subtotal > 100 ? 0 : 9.99;
     return { subtotal, total: discounted + shipping, shipping, discount: subtotal - discounted };
-  }, [cart, inStockItems]);
+  }, [cart, selectedInStockItems]);
 
   const handleApplyCoupon = () => {
     if (coupon.trim()) {
@@ -60,9 +73,15 @@ const Cart = () => {
 
   const handleCheckout = () => {
     if (!address.trim()) return;
-    if (outOfStockItems.length > 0) return;
+    if (selectedInStockItems.length === 0) return;
     if (!window.confirm('Are you sure you want to place this order?')) return;
-    create.mutate({ address });
+    create.mutate({
+      address,
+      items: selectedInStockItems.map((item) => ({
+        productId: item.productId._id,
+        quantity: item.quantity
+      }))
+    });
   };
 
   if (isLoading) {
@@ -116,8 +135,28 @@ const Cart = () => {
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Cart Items */}
               <div className="lg:col-span-2 space-y-4">
-                {/* Clear Cart Button */}
-                <div className="flex justify-end">
+                {/* Selection & Clear */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <button
+                    onClick={() => {
+                      const allSelected = inStockItems.length > 0 && inStockItems.every((item) => selectedIds[item.productId._id]);
+                      if (allSelected) {
+                        setSelectedIds({});
+                      } else {
+                        const next: Record<string, boolean> = {};
+                        inStockItems.forEach((item) => {
+                          next[item.productId._id] = true;
+                        });
+                        setSelectedIds(next);
+                      }
+                    }}
+                    className="text-sm text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200"
+                    type="button"
+                  >
+                    {inStockItems.length > 0 && inStockItems.every((item) => selectedIds[item.productId._id])
+                      ? 'Deselect all'
+                      : 'Select all'}
+                  </button>
                   <button
                     onClick={() => clear.mutate()}
                     className="text-sm text-red-500 hover:text-red-600 flex items-center gap-1"
@@ -140,12 +179,25 @@ const Cart = () => {
                     className="card p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6"
                   >
                     {/* Product Image */}
-                    <div className="w-full sm:w-32 h-40 sm:h-32 rounded-xl overflow-hidden shrink-0 bg-stone-100 dark:bg-white/5">
-                      <img
-                        src={item.productId.coverImage || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300'}
-                        alt={item.productId.name}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="flex items-start gap-3">
+                      <label className="flex items-center gap-2 text-sm text-stone-500">
+                        <input
+                          type="checkbox"
+                          checked={!!selectedIds[item.productId._id]}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setSelectedIds((prev) => ({ ...prev, [item.productId._id]: checked }));
+                          }}
+                          className="h-4 w-4 rounded border-stone-300 text-accent-gold focus:ring-accent-gold/40"
+                        />
+                      </label>
+                      <div className="w-full sm:w-32 h-40 sm:h-32 rounded-xl overflow-hidden shrink-0 bg-stone-100 dark:bg-white/5">
+                        <img
+                          src={item.productId.coverImage || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300'}
+                          alt={item.productId.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     </div>
 
                     {/* Details */}
@@ -322,7 +374,7 @@ const Cart = () => {
                   {/* Checkout Button */}
                   <button
                     onClick={handleCheckout}
-                    disabled={create.isPending || !address.trim() || inStockItems.length === 0 || outOfStockItems.length > 0}
+                    disabled={create.isPending || !address.trim() || selectedInStockItems.length === 0}
                     className="btn-gold w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {create.isPending ? (
@@ -343,14 +395,9 @@ const Cart = () => {
                       Please enter a shipping address to continue
                     </p>
                   )}
-                  {inStockItems.length === 0 && (
+                  {selectedInStockItems.length === 0 && (
                     <p className="text-xs text-stone-500 dark:text-stone-400 text-center mt-2">
-                      Remove out of stock items to place an order.
-                    </p>
-                  )}
-                  {outOfStockItems.length > 0 && (
-                    <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-2">
-                      Please remove out of stock items before placing your order.
+                      Select at least one in-stock item to place an order.
                     </p>
                   )}
 
