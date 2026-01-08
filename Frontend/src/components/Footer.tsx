@@ -1,9 +1,17 @@
 import { Link } from 'react-router-dom';
 import { Instagram, PinIcon, Twitter } from 'lucide-react';
 import { footerSections, footerSocials } from '../lib/navigation';
+import { useState } from 'react';
 
-const Footer = () => (
-  <footer className="bg-accent-charcoal dark:bg-stone-950 text-white mt-auto">
+const Footer = () => {
+  const [event, setEvent] = useState('');
+  const handelSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert(`Subscribed with email: ${event}`);
+    setEvent('');
+  };
+  return (
+    <footer className="bg-accent-charcoal dark:bg-stone-950 text-white mt-auto">
     <div className="border-b border-white/10">
       <div className="container-wide py-16">
         <div className="max-w-2xl mx-auto text-center space-y-6">
@@ -12,8 +20,10 @@ const Footer = () => (
           <p className="text-stone-400">
             Subscribe for exclusive access to new collections, style guides, and member-only offers.
           </p>
-          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={handelSubscribe}>
             <input
+              onChange={(e) => setEvent(e.target.value)}
+              value={event}
               type="email"
               placeholder="Enter your email"
               className="flex-1 px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-stone-500 focus:outline-none focus:border-accent-gold transition-colors"
@@ -94,7 +104,8 @@ const Footer = () => (
         </div>
       </div>
     </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 export default Footer;
