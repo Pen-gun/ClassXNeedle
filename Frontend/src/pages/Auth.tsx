@@ -26,8 +26,16 @@ const Auth = () => {
     e.preventDefault();
     setError(null);
     if (mode === 'login') {
+      const identifier = form.username.trim();
+      const isEmail = identifier.includes('@');
+      const isPhone = /^\+?\d{6,}$/.test(identifier);
+      const payload = isEmail
+        ? { email: identifier, password: form.password }
+        : isPhone
+          ? { phone: identifier, password: form.password }
+          : { username: identifier, password: form.password };
       loginMutation.mutate(
-        { username: form.username || undefined, email: form.email || undefined, password: form.password },
+        payload,
         {
           onSuccess: () => navigate(redirectTo, { replace: true }),
           onError: (err: Error & { response?: { data?: { message?: string } } }) => setError(err?.response?.data?.message || 'Login failed. Please try again.')
@@ -145,13 +153,13 @@ const Auth = () => {
 
             <div>
               <label className="text-sm font-medium text-accent-charcoal dark:text-accent-cream mb-2 block">
-                Username
+                {mode === 'login' ? 'Username / Email / Phone' : 'Username'}
               </label>
               <div className="relative">
                 <input
                   type="text"
                   className="input w-full pl-11"
-                  placeholder="johndoe"
+                  placeholder={mode === 'login' ? 'admin@example.com or +123456789' : 'johndoe'}
                   value={form.username}
                   onChange={(e) => setForm({ ...form, username: e.target.value })}
                   required
@@ -162,23 +170,25 @@ const Auth = () => {
               </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium text-accent-charcoal dark:text-accent-cream mb-2 block">
-                Email {mode === 'login' && <span className="text-stone-400 font-normal">(optional)</span>}
-              </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  className="input w-full pl-11"
-                  placeholder="john@example.com"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                />
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400">
-                  <Mail className="w-5 h-5" />
+            {mode === 'register' && (
+              <div>
+                <label className="text-sm font-medium text-accent-charcoal dark:text-accent-cream mb-2 block">
+                  Email
+                </label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    className="input w-full pl-11"
+                    placeholder="john@example.com"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  />
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400">
+                    <Mail className="w-5 h-5" />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div>
               <label className="text-sm font-medium text-accent-charcoal dark:text-accent-cream mb-2 block">
@@ -188,7 +198,7 @@ const Auth = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="input w-full pl-11 pr-11"
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
