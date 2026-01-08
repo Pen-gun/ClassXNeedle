@@ -28,6 +28,7 @@ export type Product = {
   ratingQty?: number;
   /** Product stock quantity */
   stock?: number;
+  quantity?: number;
   coverImage?: string;
   images?: string[];
   category?: Category;
@@ -49,6 +50,7 @@ export type CartItem = {
     slug: string;
     price?: number;
     coverImage?: string;
+    quantity?: number;
   };
   quantity: number;
   price: number;

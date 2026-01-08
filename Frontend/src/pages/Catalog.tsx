@@ -14,6 +14,7 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
   const discountPercent = hasDiscount 
     ? Math.round((1 - (product.priceAfterDiscount! / product.price!)) * 100) 
     : 0;
+  const isOutOfStock = product.quantity !== undefined && product.quantity <= 0;
 
   return (
     <article className="product-card group">
@@ -31,6 +32,11 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
           {hasDiscount && (
             <span className="badge-gold">-{discountPercent}%</span>
           )}
+          {isOutOfStock && (
+            <span className="badge bg-stone-200/90 text-stone-600 dark:bg-white/10 dark:text-stone-300">
+              Out of Stock
+            </span>
+          )}
           {product.category?.name && (
             <span className="badge bg-white/90 dark:bg-black/70 text-stone-700 dark:text-white backdrop-blur-sm">
               {product.category.name}
@@ -47,10 +53,13 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
 
         <button
           onClick={() => onAdd(product._id)}
-          className="quick-add-btn btn-primary text-sm py-2.5 px-5 flex items-center gap-2"
+          disabled={isOutOfStock}
+          className={`quick-add-btn btn-primary text-sm py-2.5 px-5 flex items-center gap-2 ${
+            isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
         >
           <ShoppingBag className="w-4 h-4" />
-          Add to Cart
+          {isOutOfStock ? 'Unavailable' : 'Add to Cart'}
         </button>
       </div>
 
@@ -147,6 +156,8 @@ const Catalog = () => {
 
   const handleAddToCart = (productId: string) => {
     if (!requireAuth()) return;
+    const product = products.find((item) => item._id === productId);
+    if (product?.quantity !== undefined && product.quantity <= 0) return;
     addItem.mutate(
       { productId, quantity: 1 },
       { onSuccess: () => setToast('Added to cart') }

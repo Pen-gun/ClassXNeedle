@@ -54,6 +54,7 @@ export const fetchFeaturedProducts = async (): Promise<Product[]> => {
             price
             priceAfterDiscount
             ratingsAverage
+            quantity
             coverImage
             category { _id name slug }
           }
@@ -80,6 +81,7 @@ export const fetchProducts = async (): Promise<Product[]> => {
             price
             priceAfterDiscount
             ratingsAverage
+            quantity
             coverImage
             category { _id name slug }
           }
@@ -150,6 +152,7 @@ export const fetchCart = async (): Promise<Cart | null> => {
               slug
               price
               coverImage
+              quantity
             }
             quantity
             price
