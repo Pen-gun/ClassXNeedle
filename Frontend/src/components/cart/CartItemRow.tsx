@@ -6,6 +6,7 @@ type Props = {
   selected: boolean;
   selectionDisabled?: boolean;
   incrementDisabled?: boolean;
+  decrementDisabled?: boolean;
   onToggleSelected: (checked: boolean) => void;
   onIncrement: () => void;
   onDecrement: () => void;
@@ -19,6 +20,7 @@ const CartItemRow = ({
   selected,
   selectionDisabled,
   incrementDisabled,
+  decrementDisabled,
   onToggleSelected,
   onIncrement,
   onDecrement,
@@ -75,7 +77,7 @@ const CartItemRow = ({
           <div className="flex items-center border border-stone-200 dark:border-stone-700 rounded-lg overflow-hidden">
             <button
               onClick={onDecrement}
-              disabled={item.quantity <= 1}
+              disabled={decrementDisabled || item.quantity <= 1}
               className="w-9 h-9 flex items-center justify-center hover:bg-stone-100 dark:hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Minus className="w-4 h-4" />

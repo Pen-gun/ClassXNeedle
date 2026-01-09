@@ -56,6 +56,18 @@ const Cart = () => {
 
   const selectedInStockItems = inStockItems.filter((item) => selectedIds[item.productId._id]);
 
+  const getErrorMessage = (error: unknown) => {
+    if (!error) return '';
+    if (typeof error === 'string') return error;
+    if (error instanceof Error) return error.message;
+    const maybeAxios = error as { response?: { data?: { message?: string } } };
+    return maybeAxios.response?.data?.message || 'Something went wrong. Please try again.';
+  };
+
+  const cartMutationError =
+    updateItem.error || removeItem.error || clear.error || apply.error || dropCoupon.error;
+  const cartErrorMessage = getErrorMessage(cartMutationError);
+
   const totals = useMemo(() => {
     const subtotalAll = cart?.totalCartPrice || 0;
     const subtotal = selectedInStockItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -139,6 +151,11 @@ const Cart = () => {
                   }}
                   onClear={() => clear.mutate()}
                 />
+                {cartErrorMessage && (
+                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300">
+                    {cartErrorMessage}
+                  </div>
+                )}
 
                 {inStockItems.length === 0 && (
                   <div className="card p-6 text-center text-stone-500 dark:text-stone-400">
@@ -155,8 +172,10 @@ const Cart = () => {
                       item.productId.quantity !== undefined && item.quantity > item.productId.quantity
                     }
                     incrementDisabled={
-                      item.productId.quantity !== undefined && item.quantity >= item.productId.quantity
+                      (item.productId.quantity !== undefined && item.quantity >= item.productId.quantity) ||
+                      (updateItem.isPending && updateItem.variables?.productId === item.productId._id)
                     }
+                    decrementDisabled={updateItem.isPending && updateItem.variables?.productId === item.productId._id}
                     stockWarning={
                       item.productId.quantity !== undefined && item.quantity > item.productId.quantity
                         ? `Only ${item.productId.quantity} left in stock`

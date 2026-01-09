@@ -60,6 +60,7 @@ export const useCartMutations = () => {
       if (context?.previous) {
         qc.setQueryData(['cart'], context.previous);
       }
+      invalidate();
     },
     onSuccess: (data) => {
       if (isCart(data)) {
@@ -91,6 +92,7 @@ export const useCartMutations = () => {
       if (context?.previous) {
         qc.setQueryData(['cart'], context.previous);
       }
+      invalidate();
     },
     onSuccess: (data) => {
       if (isCart(data)) {
