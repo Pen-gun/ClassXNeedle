@@ -13,7 +13,9 @@ type Props = {
   couponApplied: boolean;
   address: string;
   canCheckout: boolean;
+  isCartUpdating: boolean;
   isPlacingOrder: boolean;
+  orderErrorMessage?: string;
   onCouponChange: (value: string) => void;
   onApplyCoupon: () => void;
   onRemoveCoupon: () => void;
@@ -28,7 +30,9 @@ const CartSummary = ({
   couponApplied,
   address,
   canCheckout,
+  isCartUpdating,
   isPlacingOrder,
+  orderErrorMessage,
   onCouponChange,
   onApplyCoupon,
   onRemoveCoupon,
@@ -144,9 +148,19 @@ const CartSummary = ({
         Please enter a shipping address to continue
       </p>
     )}
-    {canCheckout === false && address.trim() && (
+    {isCartUpdating && address.trim() && (
+      <p className="text-xs text-stone-500 dark:text-stone-400 text-center mt-2">
+        Updating cart, please wait...
+      </p>
+    )}
+    {canCheckout === false && address.trim() && !isCartUpdating && (
       <p className="text-xs text-stone-500 dark:text-stone-400 text-center mt-2">
         Select at least one in-stock item to place an order.
+      </p>
+    )}
+    {orderErrorMessage && (
+      <p className="text-xs text-red-600 dark:text-red-400 text-center mt-2">
+        {orderErrorMessage}
       </p>
     )}
 

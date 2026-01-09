@@ -14,7 +14,7 @@ import { useOrderMutations } from '../hooks/useOrders';
 import { formatPrice } from '../lib/utils';
 
 const Cart = () => {
-  const { data: cart, isLoading } = useCart();
+  const { data: cart, isLoading, refetch: refetchCart } = useCart();
   const { updateItem, removeItem, clear, apply, dropCoupon } = useCartMutations();
   const { create } = useOrderMutations();
   const [coupon, setCoupon] = useState('');
@@ -55,6 +55,8 @@ const Cart = () => {
   }, [inStockItems, selectionDefault, selectionOverrides]);
 
   const selectedInStockItems = inStockItems.filter((item) => selectedIds[item.productId._id]);
+  const isCartUpdating =
+    updateItem.isPending || removeItem.isPending || clear.isPending || apply.isPending || dropCoupon.isPending;
 
   const getErrorMessage = (error: unknown) => {
     if (!error) return '';
@@ -92,13 +94,34 @@ const Cart = () => {
     setCouponApplied(false);
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!address.trim()) return;
-    if (selectedInStockItems.length === 0) return;
+    if (isCartUpdating) return;
+    const refreshed = await refetchCart();
+    const refreshedCart = refreshed.data;
+    const refreshedItems: CartLineItem[] = refreshedCart?.cartItem ?? [];
+    const refreshedInStockItems = refreshedItems.filter((item) => {
+      const stockQty = item.productId.quantity;
+      return stockQty === undefined || stockQty > 0;
+    });
+    const refreshedSelectedIds: Record<string, boolean> = {};
+    for (const item of refreshedInStockItems) {
+      const id = item.productId._id;
+      const stockQty = item.productId.quantity;
+      if (stockQty !== undefined && item.quantity > stockQty) {
+        refreshedSelectedIds[id] = false;
+        continue;
+      }
+      refreshedSelectedIds[id] = selectionOverrides[id] ?? selectionDefault;
+    }
+    const refreshedSelectedInStockItems = refreshedInStockItems.filter(
+      (item) => refreshedSelectedIds[item.productId._id]
+    );
+    if (refreshedSelectedInStockItems.length === 0) return;
     if (!window.confirm('Are you sure you want to place this order?')) return;
     create.mutate({
       address,
-      items: selectedInStockItems.map((item) => ({
+      items: refreshedSelectedInStockItems.map((item) => ({
         productId: item.productId._id,
         quantity: item.quantity
       }))
@@ -230,8 +253,10 @@ const Cart = () => {
                   coupon={coupon}
                   couponApplied={couponApplied}
                   address={address}
-                  canCheckout={address.trim().length > 0 && selectedInStockItems.length > 0}
+                  canCheckout={address.trim().length > 0 && selectedInStockItems.length > 0 && !isCartUpdating}
+                  isCartUpdating={isCartUpdating}
                   isPlacingOrder={create.isPending}
+                  orderErrorMessage={getErrorMessage(create.error)}
                   onCouponChange={setCoupon}
                   onApplyCoupon={handleApplyCoupon}
                   onRemoveCoupon={handleRemoveCoupon}
