@@ -520,7 +520,10 @@ const ProductsSection = () => {
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span>{formatCurrency(product.price)}</span>
-                <button onClick={() => startEdit(product)} className="btn-ghost text-xs">
+                <button
+                  onClick={() => startEdit(product)}
+                  className="btn-ghost text-xs text-white/80 hover:text-white bg-white/5 hover:bg-white/10"
+                >
                   Edit
                 </button>
                 <button
@@ -628,7 +631,7 @@ const CategoriesSection = () => {
                     setName(category.name);
                     setImage(null);
                   }}
-                  className="btn-ghost text-xs"
+                  className="btn-ghost text-xs text-white/80 hover:text-white bg-white/5 hover:bg-white/10"
                 >
                   Edit
                 </button>
@@ -752,7 +755,7 @@ const SubCategoriesSection = () => {
                     setName(sub.name);
                     setCategory(sub.category?._id || '');
                   }}
-                  className="btn-ghost text-xs"
+                  className="btn-ghost text-xs text-white/80 hover:text-white bg-white/5 hover:bg-white/10"
                 >
                   Edit
                 </button>
@@ -861,7 +864,7 @@ const BrandsSection = () => {
                     setName(brand.name);
                     setImage(null);
                   }}
-                  className="btn-ghost text-xs"
+                  className="btn-ghost text-xs text-white/80 hover:text-white bg-white/5 hover:bg-white/10"
                 >
                   Edit
                 </button>
@@ -987,7 +990,7 @@ const CouponsSection = () => {
                       expirationDate: coupon.expirationDate.slice(0, 10)
                     });
                   }}
-                  className="btn-ghost text-xs"
+                  className="btn-ghost text-xs text-white/80 hover:text-white bg-white/5 hover:bg-white/10"
                 >
                   Edit
                 </button>
@@ -1089,7 +1092,10 @@ const OrderRow = ({
           <option value="Delivered">Delivered</option>
           <option value="Cancelled">Cancelled</option>
         </select>
-        <button onClick={() => onStatus(status)} className="btn-secondary text-xs">
+        <button
+          onClick={() => onStatus(status)}
+          className="btn-secondary text-xs border-white/30 text-white/90 hover:bg-white/10 hover:text-white"
+        >
           Update status
         </button>
         {!order.isPaid && (
