@@ -25,17 +25,30 @@ const Cart = () => {
 
   const items: CartLineItem[] = cart?.cartItem ?? [];
   const inStockItems = useMemo(
-    () => items.filter((item) => item.productId.quantity === undefined || item.productId.quantity > 0),
+    () =>
+      items.filter((item) => {
+        const stockQty = item.productId.quantity;
+        return stockQty === undefined || stockQty > 0;
+      }),
     [items]
   );
   const outOfStockItems = useMemo(
-    () => items.filter((item) => item.productId.quantity !== undefined && item.productId.quantity <= 0),
+    () =>
+      items.filter((item) => {
+        const stockQty = item.productId.quantity;
+        return stockQty !== undefined && stockQty <= 0;
+      }),
     [items]
   );
   const selectedIds = useMemo(() => {
     const next: Record<string, boolean> = {};
     for (const item of inStockItems) {
       const id = item.productId._id;
+      const stockQty = item.productId.quantity;
+      if (stockQty !== undefined && item.quantity > stockQty) {
+        next[id] = false;
+        continue;
+      }
       next[id] = selectionOverrides[id] ?? selectionDefault;
     }
     return next;
@@ -138,6 +151,17 @@ const Cart = () => {
                     key={item.productId._id}
                     item={item}
                     selected={!!selectedIds[item.productId._id]}
+                    selectionDisabled={
+                      item.productId.quantity !== undefined && item.quantity > item.productId.quantity
+                    }
+                    incrementDisabled={
+                      item.productId.quantity !== undefined && item.quantity >= item.productId.quantity
+                    }
+                    stockWarning={
+                      item.productId.quantity !== undefined && item.quantity > item.productId.quantity
+                        ? `Only ${item.productId.quantity} left in stock`
+                        : undefined
+                    }
                     onToggleSelected={(checked) => {
                       const id = item.productId._id;
                       setSelectionOverrides((prev) => {
@@ -156,10 +180,16 @@ const Cart = () => {
                       });
                     }}
                     onIncrement={() => updateItem.mutate({ productId: item.productId._id, quantity: item.quantity + 1 })}
-                    onDecrement={() =>
-                      item.quantity > 1 &&
-                      updateItem.mutate({ productId: item.productId._id, quantity: item.quantity - 1 })
-                    }
+                    onDecrement={() => {
+                      if (item.quantity <= 1) return;
+                      const stockQty = item.productId.quantity;
+                      let nextQuantity = item.quantity - 1;
+                      if (stockQty !== undefined && nextQuantity > stockQty) {
+                        nextQuantity = stockQty;
+                      }
+                      if (nextQuantity < 1 || nextQuantity === item.quantity) return;
+                      updateItem.mutate({ productId: item.productId._id, quantity: nextQuantity });
+                    }}
                     onRemove={() => removeItem.mutate(item.productId._id)}
                     formatPrice={formatPrice}
                   />

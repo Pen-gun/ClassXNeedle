@@ -4,20 +4,26 @@ import type { CartLineItem } from './types';
 type Props = {
   item: CartLineItem;
   selected: boolean;
+  selectionDisabled?: boolean;
+  incrementDisabled?: boolean;
   onToggleSelected: (checked: boolean) => void;
   onIncrement: () => void;
   onDecrement: () => void;
   onRemove: () => void;
+  stockWarning?: string;
   formatPrice: (value: number) => string;
 };
 
 const CartItemRow = ({
   item,
   selected,
+  selectionDisabled,
+  incrementDisabled,
   onToggleSelected,
   onIncrement,
   onDecrement,
   onRemove,
+  stockWarning,
   formatPrice
 }: Props) => (
   <article className="card p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6">
@@ -26,8 +32,9 @@ const CartItemRow = ({
         <input
           type="checkbox"
           checked={selected}
+          disabled={selectionDisabled}
           onChange={(e) => onToggleSelected(e.target.checked)}
-          className="h-4 w-4 rounded border-stone-300 text-accent-gold focus:ring-accent-gold/40"
+          className="h-4 w-4 rounded border-stone-300 text-accent-gold focus:ring-accent-gold/40 disabled:opacity-50 disabled:cursor-not-allowed"
         />
       </label>
       <div className="w-full sm:w-32 h-40 sm:h-32 rounded-xl overflow-hidden shrink-0 bg-stone-100 dark:bg-white/5">
@@ -64,23 +71,29 @@ const CartItemRow = ({
       </div>
 
       <div className="flex items-end justify-between mt-4">
-        <div className="flex items-center border border-stone-200 dark:border-stone-700 rounded-lg overflow-hidden">
-          <button
-            onClick={onDecrement}
-            disabled={item.quantity <= 1}
-            className="w-9 h-9 flex items-center justify-center hover:bg-stone-100 dark:hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Minus className="w-4 h-4" />
-          </button>
-          <span className="w-10 h-9 flex items-center justify-center text-sm font-medium border-x border-stone-200 dark:border-stone-700">
-            {item.quantity}
-          </span>
-          <button
-            onClick={onIncrement}
-            className="w-9 h-9 flex items-center justify-center hover:bg-stone-100 dark:hover:bg-white/10 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
+        <div className="flex flex-col items-start gap-2">
+          <div className="flex items-center border border-stone-200 dark:border-stone-700 rounded-lg overflow-hidden">
+            <button
+              onClick={onDecrement}
+              disabled={item.quantity <= 1}
+              className="w-9 h-9 flex items-center justify-center hover:bg-stone-100 dark:hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <span className="w-10 h-9 flex items-center justify-center text-sm font-medium border-x border-stone-200 dark:border-stone-700">
+              {item.quantity}
+            </span>
+            <button
+              onClick={onIncrement}
+              disabled={incrementDisabled}
+              className="w-9 h-9 flex items-center justify-center hover:bg-stone-100 dark:hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          {stockWarning && (
+            <p className="text-xs font-medium text-red-600 dark:text-red-400">{stockWarning}</p>
+          )}
         </div>
 
         <div className="text-right">
