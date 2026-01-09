@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   CartEmptyState,
@@ -20,7 +20,8 @@ const Cart = () => {
   const [coupon, setCoupon] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
   const [address, setAddress] = useState('');
-  const [selectedIds, setSelectedIds] = useState<Record<string, boolean>>({});
+  const [selectionDefault, setSelectionDefault] = useState(true);
+  const [selectionOverrides, setSelectionOverrides] = useState<Record<string, boolean>>({});
 
   const items: CartLineItem[] = cart?.cartItem ?? [];
   const inStockItems = useMemo(
@@ -31,29 +32,16 @@ const Cart = () => {
     () => items.filter((item) => item.productId.quantity !== undefined && item.productId.quantity <= 0),
     [items]
   );
+  const selectedIds = useMemo(() => {
+    const next: Record<string, boolean> = {};
+    for (const item of inStockItems) {
+      const id = item.productId._id;
+      next[id] = selectionOverrides[id] ?? selectionDefault;
+    }
+    return next;
+  }, [inStockItems, selectionDefault, selectionOverrides]);
+
   const selectedInStockItems = inStockItems.filter((item) => selectedIds[item.productId._id]);
-
-  const inStockIdsKey = useMemo(
-    () => inStockItems.map((item) => item.productId._id).sort().join('|'),
-    [inStockItems]
-  );
-
-  useEffect(() => {
-    if (inStockItems.length === 0) return;
-    setSelectedIds((prev) => {
-      const next: Record<string, boolean> = {};
-      for (const item of inStockItems) {
-        const id = item.productId._id;
-        next[id] = prev[id] ?? true;
-      }
-      const prevKeys = Object.keys(prev);
-      const nextKeys = Object.keys(next);
-      if (prevKeys.length === nextKeys.length && prevKeys.every((key) => prev[key] === next[key])) {
-        return prev;
-      }
-      return next;
-    });
-  }, [inStockIdsKey, inStockItems]);
 
   const totals = useMemo(() => {
     const subtotalAll = cart?.totalCartPrice || 0;
@@ -129,14 +117,12 @@ const Cart = () => {
                       inStockItems.length > 0 &&
                       inStockItems.every((item) => selectedIds[item.productId._id]);
                     if (allSelected) {
-                      setSelectedIds({});
+                      setSelectionDefault(false);
+                      setSelectionOverrides({});
                       return;
                     }
-                    const next: Record<string, boolean> = {};
-                    inStockItems.forEach((item) => {
-                      next[item.productId._id] = true;
-                    });
-                    setSelectedIds(next);
+                    setSelectionDefault(true);
+                    setSelectionOverrides({});
                   }}
                   onClear={() => clear.mutate()}
                 />
@@ -153,7 +139,21 @@ const Cart = () => {
                     item={item}
                     selected={!!selectedIds[item.productId._id]}
                     onToggleSelected={(checked) => {
-                      setSelectedIds((prev) => ({ ...prev, [item.productId._id]: checked }));
+                      const id = item.productId._id;
+                      setSelectionOverrides((prev) => {
+                        if (checked === selectionDefault) {
+                          if (!(id in prev)) {
+                            return prev;
+                          }
+                          const next = { ...prev };
+                          delete next[id];
+                          return next;
+                        }
+                        if (prev[id] === checked) {
+                          return prev;
+                        }
+                        return { ...prev, [id]: checked };
+                      });
                     }}
                     onIncrement={() => updateItem.mutate({ productId: item.productId._id, quantity: item.quantity + 1 })}
                     onDecrement={() =>
