@@ -54,9 +54,7 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
         <button
           onClick={() => onAdd(product._id)}
           disabled={isOutOfStock}
-          className={`quick-add-btn btn-primary text-sm py-2.5 px-5 flex items-center gap-2 ${
-            isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          className="quick-add-btn btn-primary text-sm py-2.5 px-5 flex items-center gap-2"
         >
           <ShoppingBag className="w-4 h-4" />
           {isOutOfStock ? 'Unavailable' : 'Add to Cart'}

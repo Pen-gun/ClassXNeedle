@@ -35,12 +35,20 @@
 
 /* Quick add button animation */
 .quick-add-btn {
-  @apply absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-8 opacity-0;
+  @apply absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-8 opacity-0 pointer-events-none;
   @apply transition-all duration-300 ease-out;
 }
 
 .group:hover .quick-add-btn {
-  @apply translate-y-0 opacity-100;
+  @apply translate-y-0 opacity-100 pointer-events-auto;
+}
+
+.quick-add-btn:disabled {
+  @apply opacity-0 pointer-events-none;
+}
+
+.group:hover .quick-add-btn:disabled {
+  @apply opacity-50;
 }
 
 /* Marquee animation for announcement bar */
