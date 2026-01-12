@@ -157,6 +157,8 @@ export const fetchCart = async (): Promise<Cart | null> => {
             }
             quantity
             price
+            size
+            color
           }
         }
       }
@@ -168,18 +170,21 @@ export const fetchCart = async (): Promise<Cart | null> => {
   }
 };
 
-export const addCartItem = async (payload: { productId: string; quantity: number }) => {
+export const addCartItem = async (payload: { productId: string; quantity: number; size: string; color: string }) => {
   const res = await restClient.post('/cart/items', payload);
   return res.data?.data;
 };
 
-export const updateCartItem = async (productId: string, quantity: number) => {
-  const res = await restClient.patch(`/cart/items/${productId}`, { quantity });
+export const updateCartItem = async (
+  productId: string,
+  payload: { quantity: number; size: string; color: string }
+) => {
+  const res = await restClient.patch(`/cart/items/${productId}`, payload);
   return res.data?.data;
 };
 
-export const removeCartItem = async (productId: string) => {
-  const res = await restClient.delete(`/cart/items/${productId}`);
+export const removeCartItem = async (productId: string, payload: { size: string; color: string }) => {
+  const res = await restClient.delete(`/cart/items/${productId}`, { data: payload });
   return res.data?.data;
 };
 
@@ -198,7 +203,12 @@ export const removeCoupon = async () => {
   return res.data?.data;
 };
 
-export const createOrder = async (payload: { address: string; phoneNumber: string; shippingCost?: number; items?: { productId: string; quantity: number }[] }) => {
+export const createOrder = async (payload: {
+  address: string;
+  phoneNumber: string;
+  shippingCost?: number;
+  items?: { productId: string; quantity: number; size: string; color: string }[];
+}) => {
   const res = await restClient.post('/orders', payload);
   return res.data?.data;
 };

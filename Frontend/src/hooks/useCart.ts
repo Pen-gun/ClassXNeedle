@@ -35,16 +35,21 @@ export const useCartMutations = () => {
   });
 
   const updateItem = useMutation({
-    mutationFn: ({ productId, quantity }: { productId: string; quantity: number }) => updateCartItem(productId, quantity),
-    onMutate: async ({ productId, quantity }) => {
+    mutationFn: ({ productId, quantity, size, color }: { productId: string; quantity: number; size: string; color: string }) =>
+      updateCartItem(productId, { quantity, size, color }),
+    onMutate: async ({ productId, quantity, size, color }) => {
       await qc.cancelQueries({ queryKey: ['cart'] });
       const previous = qc.getQueryData<Cart | null>(['cart']);
       if (!previous) return { previous };
-      const existing = previous.cartItem.find((item) => item.productId._id === productId);
+      const existing = previous.cartItem.find(
+        (item) => item.productId._id === productId && item.size === size && item.color === color
+      );
       if (!existing || existing.quantity === quantity) return { previous };
       const delta = quantity - existing.quantity;
       const nextItems = previous.cartItem.map((item) =>
-        item.productId._id === productId ? { ...item, quantity } : item
+        item.productId._id === productId && item.size === size && item.color === color
+          ? { ...item, quantity }
+          : item
       );
       const nextTotal = Math.max(0, previous.totalCartPrice + delta * existing.price);
       const nextCart: Cart = {
@@ -70,14 +75,19 @@ export const useCartMutations = () => {
   });
 
   const removeItem = useMutation({
-    mutationFn: (productId: string) => removeCartItem(productId),
-    onMutate: async (productId) => {
+    mutationFn: ({ productId, size, color }: { productId: string; size: string; color: string }) =>
+      removeCartItem(productId, { size, color }),
+    onMutate: async ({ productId, size, color }) => {
       await qc.cancelQueries({ queryKey: ['cart'] });
       const previous = qc.getQueryData<Cart | null>(['cart']);
       if (!previous) return { previous };
-      const existing = previous.cartItem.find((item) => item.productId._id === productId);
+      const existing = previous.cartItem.find(
+        (item) => item.productId._id === productId && item.size === size && item.color === color
+      );
       if (!existing) return { previous };
-      const nextItems = previous.cartItem.filter((item) => item.productId._id !== productId);
+      const nextItems = previous.cartItem.filter(
+        (item) => item.productId._id !== productId || item.size !== size || item.color !== color
+      );
       const nextTotal = Math.max(0, previous.totalCartPrice - existing.quantity * existing.price);
       const nextCart: Cart = {
         ...previous,

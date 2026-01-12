@@ -60,6 +60,8 @@ export type CartItem = {
   };
   quantity: number;
   price: number;
+  size?: string;
+  color?: string;
 };
 
 export type Cart = {
@@ -74,6 +76,8 @@ export type Order = {
   orderItems: {
     productId: string;
     quantity: number;
+    size?: string;
+    color?: string;
     product?: { name: string; slug: string; price?: number; coverImage?: string };
   }[];
   orderPrice: number;
@@ -142,6 +146,8 @@ export type AdminOrder = {
   orderItems: {
     productId: string;
     quantity: number;
+    size?: string;
+    color?: string;
     product?: { name: string; slug: string; price?: number; coverImage?: string };
   }[];
 };

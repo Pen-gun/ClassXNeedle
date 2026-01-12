@@ -6,6 +6,12 @@ const cartSchema = new mongoose.Schema({
             type: Schema.Types.ObjectId,
             ref: "Product"
         },
+        size: {
+            type: String
+        },
+        color: {
+            type: String
+        },
         price:{
             type: Number,
             required: true

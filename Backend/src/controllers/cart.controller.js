@@ -56,6 +56,8 @@ export const getCart = asyncHandler(async (req, res) => {
                         productId: '$cartItem.productId',
                         quantity: '$cartItem.quantity',
                         price: '$cartItem.price',
+                        size: '$cartItem.size',
+                        color: '$cartItem.color',
                         product: {
                             _id: '$cartItem.productDetails._id',
                             name: '$cartItem.productDetails.name',
@@ -100,11 +102,14 @@ export const getCart = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const addToCart = asyncHandler(async (req, res) => {
-    const { productId, quantity = 1 } = req.body;
+    const { productId, quantity = 1, size, color } = req.body;
     const customerId = req.user._id;
 
     if (!productId) {
         throw new ApiError(400, "Product ID is required");
+    }
+    if (!size || !color) {
+        throw new ApiError(400, "Size and color are required");
     }
 
     // Check if product exists and has sufficient quantity
@@ -116,6 +121,12 @@ export const addToCart = asyncHandler(async (req, res) => {
     if (product.quantity < quantity) {
         throw new ApiError(400, "Insufficient product quantity");
     }
+    if (Array.isArray(product.size) && !product.size.includes(size)) {
+        throw new ApiError(400, "Selected size is not available");
+    }
+    if (Array.isArray(product.color) && !product.color.includes(color)) {
+        throw new ApiError(400, "Selected color is not available");
+    }
 
     const price = product.priceAfterDiscount || product.price;
 
@@ -126,13 +137,16 @@ export const addToCart = asyncHandler(async (req, res) => {
         // Create new cart
         cart = await Cart.create({
             customer: customerId,
-            cartItem: [{ productId, quantity, price }],
+            cartItem: [{ productId, quantity, price, size, color }],
             totalCartPrice: price * quantity
         });
     } else {
         // Check if product already in cart
         const existingItemIndex = cart.cartItem.findIndex(
-            item => item.productId.toString() === productId.toString()
+            item =>
+                item.productId.toString() === productId.toString() &&
+                item.size === size &&
+                item.color === color
         );
 
         if (existingItemIndex > -1) {
@@ -141,7 +155,7 @@ export const addToCart = asyncHandler(async (req, res) => {
             cart.cartItem[existingItemIndex].price = price;
         } else {
             // Add new item
-            cart.cartItem.push({ productId, quantity, price });
+            cart.cartItem.push({ productId, quantity, price, size, color });
         }
 
         // Recalculate total
@@ -167,11 +181,14 @@ export const addToCart = asyncHandler(async (req, res) => {
  */
 export const updateCartItem = asyncHandler(async (req, res) => {
     const { productId } = req.params;
-    const { quantity } = req.body;
+    const { quantity, size, color } = req.body;
     const customerId = req.user._id;
 
     if (!quantity || quantity < 1) {
         throw new ApiError(400, "Valid quantity is required");
+    }
+    if (!size || !color) {
+        throw new ApiError(400, "Size and color are required");
     }
 
     // Check product availability
@@ -191,7 +208,10 @@ export const updateCartItem = asyncHandler(async (req, res) => {
     }
 
     const itemIndex = cart.cartItem.findIndex(
-        item => item.productId.toString() === productId.toString()
+        item =>
+            item.productId.toString() === productId.toString() &&
+            item.size === size &&
+            item.color === color
     );
 
     if (itemIndex === -1) {
@@ -224,6 +244,7 @@ export const updateCartItem = asyncHandler(async (req, res) => {
  */
 export const removeFromCart = asyncHandler(async (req, res) => {
     const { productId } = req.params;
+    const { size, color } = req.body;
     const customerId = req.user._id;
 
     const cart = await Cart.findOne({ customer: customerId });
@@ -232,8 +253,15 @@ export const removeFromCart = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Cart not found");
     }
 
+    if (!size || !color) {
+        throw new ApiError(400, "Size and color are required");
+    }
+
     cart.cartItem = cart.cartItem.filter(
-        item => item.productId.toString() !== productId.toString()
+        item =>
+            item.productId.toString() !== productId.toString() ||
+            item.size !== size ||
+            item.color !== color
     );
 
     if (cart.cartItem.length === 0) {

@@ -3,7 +3,7 @@ import type { CartLineItem } from './types';
 
 type Props = {
   items: CartLineItem[];
-  onRemove: (productId: string) => void;
+  onRemove: (payload: { productId: string; size: string; color: string }) => void;
 };
 
 const OutOfStockList = ({ items, onRemove }: Props) => {
@@ -17,7 +17,7 @@ const OutOfStockList = ({ items, onRemove }: Props) => {
       <div className="space-y-3">
         {items.map((item) => (
           <article
-            key={item.productId._id}
+            key={`${item.productId._id}:${item.size ?? ''}:${item.color ?? ''}`}
             className="card p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 opacity-60"
           >
             <div className="w-full sm:w-32 h-40 sm:h-32 rounded-xl overflow-hidden shrink-0 bg-stone-100 dark:bg-white/5">
@@ -35,12 +35,25 @@ const OutOfStockList = ({ items, onRemove }: Props) => {
                 <h3 className="font-semibold text-accent-charcoal dark:text-accent-cream text-lg">
                   {item.productId.name}
                 </h3>
+                {(item.size || item.color) && (
+                  <p className="text-xs text-stone-400 mt-1">
+                    {item.size && `Size: ${item.size}`}
+                    {item.size && item.color && ' · '}
+                    {item.color && `Color: ${item.color}`}
+                  </p>
+                )}
                 <p className="text-sm text-stone-500 dark:text-stone-400 mt-0.5">
                   Out of stock
                 </p>
               </div>
               <button
-                onClick={() => onRemove(item.productId._id)}
+                onClick={() =>
+                  onRemove({
+                    productId: item.productId._id,
+                    size: item.size ?? '',
+                    color: item.color ?? ''
+                  })
+                }
                 className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                 aria-label="Remove item"
               >

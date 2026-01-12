@@ -65,6 +65,13 @@ const CartItemRow = ({
                 {item.productId.category.name}
               </p>
             )}
+            {(item.size || item.color) && (
+              <p className="text-xs text-stone-400 mt-1">
+                {item.size && `Size: ${item.size}`}
+                {item.size && item.color && ' · '}
+                {item.color && `Color: ${item.color}`}
+              </p>
+            )}
           </div>
           <button
             onClick={onRemove}

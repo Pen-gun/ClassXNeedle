@@ -38,7 +38,9 @@ export const createOrder = asyncHandler(async (req, res) => {
         ? items
         : cart.cartItem.map((item) => ({
             productId: item.productId._id,
-            quantity: item.quantity
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color
         }));
 
     // Validate product availability and quantities
@@ -54,10 +56,14 @@ export const createOrder = asyncHandler(async (req, res) => {
 
     // Create order items
     const cartMap = new Map(
-        cart.cartItem.map((item) => [item.productId._id.toString(), item])
+        cart.cartItem.map((item) => [
+            `${item.productId._id.toString()}:${item.size || ''}:${item.color || ''}`,
+            item
+        ])
     );
     const orderItems = selectedItems.map((item) => {
-        const cartItem = cartMap.get(item.productId.toString());
+        const key = `${item.productId.toString()}:${item.size || ''}:${item.color || ''}`;
+        const cartItem = cartMap.get(key);
         if (!cartItem) {
             throw new ApiError(400, "Selected item not found in cart");
         }
@@ -66,12 +72,15 @@ export const createOrder = asyncHandler(async (req, res) => {
         }
         return {
             productId: cartItem.productId._id,
-            quantity: item.quantity
+            quantity: item.quantity,
+            size: cartItem.size,
+            color: cartItem.color
         };
     });
 
     const subtotal = selectedItems.reduce((sum, item) => {
-        const cartItem = cartMap.get(item.productId.toString());
+        const key = `${item.productId.toString()}:${item.size || ''}:${item.color || ''}`;
+        const cartItem = cartMap.get(key);
         return sum + (cartItem?.price || 0) * item.quantity;
     }, 0);
     const discountRate = cart.totalCartPrice > 0 && cart.priceAfterDiscount
@@ -116,7 +125,13 @@ export const createOrder = asyncHandler(async (req, res) => {
 
     // Remove selected items from cart
     cart.cartItem = cart.cartItem.filter(
-        (item) => !selectedItems.find((selected) => selected.productId.toString() === item.productId._id.toString())
+        (item) =>
+            !selectedItems.find(
+                (selected) =>
+                    selected.productId.toString() === item.productId._id.toString() &&
+                    (selected.size || '') === (item.size || '') &&
+                    (selected.color || '') === (item.color || '')
+            )
     );
     if (cart.cartItem.length === 0) {
         await Cart.findByIdAndDelete(cart._id);
@@ -240,6 +255,8 @@ export const getAllOrders = asyncHandler(async (req, res) => {
                     $push: {
                         productId: '$orderItems.productId',
                         quantity: '$orderItems.quantity',
+                        size: '$orderItems.size',
+                        color: '$orderItems.color',
                         product: {
                             name: '$orderItems.productDetails.name',
                             slug: '$orderItems.productDetails.slug',
@@ -351,6 +368,8 @@ export const getMyOrders = asyncHandler(async (req, res) => {
                     $push: {
                         productId: '$orderItems.productId',
                         quantity: '$orderItems.quantity',
+                        size: '$orderItems.size',
+                        color: '$orderItems.color',
                         product: {
                             name: '$orderItems.productDetails.name',
                             slug: '$orderItems.productDetails.slug',
@@ -454,6 +473,8 @@ export const getOrderById = asyncHandler(async (req, res) => {
                     $push: {
                         productId: '$orderItems.productId',
                         quantity: '$orderItems.quantity',
+                        size: '$orderItems.size',
+                        color: '$orderItems.color',
                         product: '$orderItems.productDetails'
                     }
                 }

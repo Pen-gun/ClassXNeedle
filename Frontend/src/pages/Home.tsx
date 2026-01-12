@@ -1,28 +1,19 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Truck, ShieldCheck, Sparkles, Heart, ShoppingBag, CheckCircle2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ArrowRight, Truck, ShieldCheck, Sparkles, Heart, ShoppingBag } from 'lucide-react';
 import { useFeaturedProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
-import { useCartMutations } from '../hooks/useCart';
-import { useRequireAuth } from '../hooks/useAuth';
 import { formatPrice } from '../lib/utils';
 import type { Product, Category } from '../types';
 import RatingStars from '../components/product/RatingStars';
 
 // Product Card Component
-const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string) => void }) => {
+const ProductCard = ({ product }: { product: Product }) => {
   const hasDiscount = product.priceAfterDiscount && product.price && product.priceAfterDiscount < product.price;
   const discountPercent = hasDiscount 
     ? Math.round((1 - (product.priceAfterDiscount! / product.price!)) * 100) 
     : 0;
   const isOutOfStock = product.quantity !== undefined && product.quantity <= 0;
   const productHref = `/product/${product.slug}`;
-
-  const handleAdd = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    onAdd(product._id);
-  };
 
   const handleWishlistClick = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -66,12 +57,14 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
         </button>
 
         <button
-          onClick={handleAdd}
-          disabled={isOutOfStock}
-          className="quick-add-btn btn-primary text-sm py-2.5 px-5 flex items-center gap-2"
+          type="button"
+          aria-disabled={isOutOfStock}
+          className={`quick-add-btn btn-primary text-sm py-2.5 px-5 flex items-center gap-2 ${
+            isOutOfStock ? 'opacity-70' : ''
+          }`}
         >
           <ShoppingBag className="w-4 h-4" />
-          {isOutOfStock ? 'Unavailable' : 'Add to Cart'}
+          {isOutOfStock ? 'Out of Stock' : 'Choose Options'}
         </button>
       </div>
 
@@ -129,25 +122,6 @@ const features = [
 const Home = () => {
   const { data: products = [], isLoading: loadingProducts } = useFeaturedProducts();
   const { data: categories = [] } = useCategories();
-  const { addItem } = useCartMutations();
-  const requireAuth = useRequireAuth();
-  const [toast, setToast] = useState<string | null>(null);
-
-  const handleAddToCart = (productId: string) => {
-    if (!requireAuth()) return;
-    const product = products.find((item) => item._id === productId);
-    if (product?.quantity !== undefined && product.quantity <= 0) return;
-    addItem.mutate(
-      { productId, quantity: 1 },
-      { onSuccess: () => setToast('Added to cart') }
-    );
-  };
-
-  useEffect(() => {
-    if (!toast) return;
-    const id = window.setTimeout(() => setToast(null), 2200);
-    return () => window.clearTimeout(id);
-  }, [toast]);
 
   return (
     <div className="space-y-0">
@@ -298,7 +272,7 @@ const Home = () => {
           ) : (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               {products.map((product) => (
-                <ProductCard key={product._id} product={product} onAdd={handleAddToCart} />
+                <ProductCard key={product._id} product={product} />
               ))}
             </div>
           )}
@@ -388,12 +362,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-      {toast && (
-        <div className="toast toast-success">
-          <CheckCircle2 className="w-5 h-5" />
-          <span>{toast}</span>
-        </div>
-      )}
     </div>
   );
 };

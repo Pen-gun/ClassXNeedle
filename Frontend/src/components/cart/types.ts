@@ -9,4 +9,6 @@ export type CartLineItem = {
   };
   quantity: number;
   price: number;
+  size?: string;
+  color?: string;
 };

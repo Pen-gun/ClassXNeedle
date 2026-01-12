@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   CartEmptyState,
@@ -27,6 +27,10 @@ const Cart = () => {
   const [selectionOverrides, setSelectionOverrides] = useState<Record<string, boolean>>({});
 
   const items: CartLineItem[] = cart?.cartItem ?? [];
+  const getItemKey = useCallback(
+    (item: CartLineItem) => `${item.productId._id}:${item.size ?? ''}:${item.color ?? ''}`,
+    []
+  );
   const inStockItems = useMemo(
     () =>
       items.filter((item) => {
@@ -46,7 +50,7 @@ const Cart = () => {
   const selectedIds = useMemo(() => {
     const next: Record<string, boolean> = {};
     for (const item of inStockItems) {
-      const id = item.productId._id;
+      const id = getItemKey(item);
       const stockQty = item.productId.quantity;
       if (stockQty !== undefined && item.quantity > stockQty) {
         next[id] = false;
@@ -55,9 +59,9 @@ const Cart = () => {
       next[id] = selectionOverrides[id] ?? selectionDefault;
     }
     return next;
-  }, [inStockItems, selectionDefault, selectionOverrides]);
+  }, [getItemKey, inStockItems, selectionDefault, selectionOverrides]);
 
-  const selectedInStockItems = inStockItems.filter((item) => selectedIds[item.productId._id]);
+  const selectedInStockItems = inStockItems.filter((item) => selectedIds[getItemKey(item)]);
   const isCartUpdating =
     updateItem.isPending || removeItem.isPending || clear.isPending || apply.isPending || dropCoupon.isPending;
 
@@ -125,7 +129,7 @@ const Cart = () => {
     });
     const refreshedSelectedIds: Record<string, boolean> = {};
     for (const item of refreshedInStockItems) {
-      const id = item.productId._id;
+      const id = getItemKey(item);
       const stockQty = item.productId.quantity;
       if (stockQty !== undefined && item.quantity > stockQty) {
         refreshedSelectedIds[id] = false;
@@ -134,7 +138,7 @@ const Cart = () => {
       refreshedSelectedIds[id] = selectionOverrides[id] ?? selectionDefault;
     }
     const refreshedSelectedInStockItems = refreshedInStockItems.filter(
-      (item) => refreshedSelectedIds[item.productId._id]
+      (item) => refreshedSelectedIds[getItemKey(item)]
     );
     if (refreshedSelectedInStockItems.length === 0) return;
     if (!window.confirm('Are you sure you want to place this order?')) return;
@@ -143,7 +147,9 @@ const Cart = () => {
       phoneNumber,
       items: refreshedSelectedInStockItems.map((item) => ({
         productId: item.productId._id,
-        quantity: item.quantity
+        quantity: item.quantity,
+        size: item.size ?? '',
+        color: item.color ?? ''
       }))
     });
   };
@@ -180,10 +186,11 @@ const Cart = () => {
                 <CartSelectionBar
                   inStockItems={inStockItems}
                   selectedIds={selectedIds}
+                  getItemKey={getItemKey}
                   onToggleAll={() => {
                     const allSelected =
                       inStockItems.length > 0 &&
-                      inStockItems.every((item) => selectedIds[item.productId._id]);
+                      inStockItems.every((item) => selectedIds[getItemKey(item)]);
                     if (allSelected) {
                       setSelectionDefault(false);
                       setSelectionOverrides({});
@@ -207,25 +214,33 @@ const Cart = () => {
                 )}
 
                 {inStockItems.map((item) => (
+                  (() => {
+                    const isUpdatingItem =
+                      updateItem.isPending &&
+                      updateItem.variables?.productId === item.productId._id &&
+                      updateItem.variables?.size === item.size &&
+                      updateItem.variables?.color === item.color;
+                    const itemKey = getItemKey(item);
+                    return (
                   <CartItemRow
-                    key={item.productId._id}
+                    key={itemKey}
                     item={item}
-                    selected={!!selectedIds[item.productId._id]}
+                    selected={!!selectedIds[itemKey]}
                     selectionDisabled={
                       item.productId.quantity !== undefined && item.quantity > item.productId.quantity
                     }
                     incrementDisabled={
                       (item.productId.quantity !== undefined && item.quantity >= item.productId.quantity) ||
-                      (updateItem.isPending && updateItem.variables?.productId === item.productId._id)
+                      isUpdatingItem
                     }
-                    decrementDisabled={updateItem.isPending && updateItem.variables?.productId === item.productId._id}
+                    decrementDisabled={isUpdatingItem}
                     stockWarning={
                       item.productId.quantity !== undefined && item.quantity > item.productId.quantity
                         ? `Only ${item.productId.quantity} left in stock`
                         : undefined
                     }
                     onToggleSelected={(checked) => {
-                      const id = item.productId._id;
+                      const id = itemKey;
                       setSelectionOverrides((prev) => {
                         if (checked === selectionDefault) {
                           if (!(id in prev)) {
@@ -241,7 +256,14 @@ const Cart = () => {
                         return { ...prev, [id]: checked };
                       });
                     }}
-                    onIncrement={() => updateItem.mutate({ productId: item.productId._id, quantity: item.quantity + 1 })}
+                    onIncrement={() =>
+                      updateItem.mutate({
+                        productId: item.productId._id,
+                        quantity: item.quantity + 1,
+                        size: item.size ?? '',
+                        color: item.color ?? ''
+                      })
+                    }
                     onDecrement={() => {
                       if (item.quantity <= 1) return;
                       const stockQty = item.productId.quantity;
@@ -250,11 +272,24 @@ const Cart = () => {
                         nextQuantity = stockQty;
                       }
                       if (nextQuantity < 1 || nextQuantity === item.quantity) return;
-                      updateItem.mutate({ productId: item.productId._id, quantity: nextQuantity });
+                      updateItem.mutate({
+                        productId: item.productId._id,
+                        quantity: nextQuantity,
+                        size: item.size ?? '',
+                        color: item.color ?? ''
+                      });
                     }}
-                    onRemove={() => removeItem.mutate(item.productId._id)}
+                    onRemove={() =>
+                      removeItem.mutate({
+                        productId: item.productId._id,
+                        size: item.size ?? '',
+                        color: item.color ?? ''
+                      })
+                    }
                     formatPrice={formatPrice}
                   />
+                    );
+                  })()
                 ))}
 
                 {/* Continue Shopping */}
@@ -292,7 +327,7 @@ const Cart = () => {
 
           <OutOfStockList
             items={outOfStockItems}
-            onRemove={(productId) => removeItem.mutate(productId)}
+            onRemove={(payload) => removeItem.mutate(payload)}
           />
         </div>
       </section>

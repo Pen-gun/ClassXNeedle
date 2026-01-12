@@ -51,7 +51,7 @@ export const schema = buildSchema(`
     createdAt: Date
   }
 
-  type OrderItem { productId: ID! quantity: Int! }
+  type OrderItem { productId: ID! quantity: Int! size: String color: String }
   type Order {
     _id: ID!
     orderItems: [OrderItem!]!
@@ -67,7 +67,7 @@ export const schema = buildSchema(`
     createdAt: Date
   }
 
-  type CartItem { productId: Product! quantity: Int! price: Float! }
+  type CartItem { productId: Product! quantity: Int! price: Float! size: String color: String }
   type Cart {
     _id: ID!
     cartItem: [CartItem!]!

@@ -4,13 +4,14 @@ import type { CartLineItem } from './types';
 type Props = {
   inStockItems: CartLineItem[];
   selectedIds: Record<string, boolean>;
+  getItemKey: (item: CartLineItem) => string;
   onToggleAll: () => void;
   onClear: () => void;
 };
 
-const CartSelectionBar = ({ inStockItems, selectedIds, onToggleAll, onClear }: Props) => {
+const CartSelectionBar = ({ inStockItems, selectedIds, getItemKey, onToggleAll, onClear }: Props) => {
   const allSelected =
-    inStockItems.length > 0 && inStockItems.every((item) => selectedIds[item.productId._id]);
+    inStockItems.length > 0 && inStockItems.every((item) => selectedIds[getItemKey(item)]);
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">

@@ -141,6 +141,13 @@ const OrderCard = ({ order, onCancel }: { order: Order; onCancel: () => void }) 
                         </h5>
                       )}
                       <p className="text-sm text-stone-500">Qty: {item.quantity}</p>
+                      {(item.size || item.color) && (
+                        <p className="text-xs text-stone-400">
+                          {item.size && `Size: ${item.size}`}
+                          {item.size && item.color && ' · '}
+                          {item.color && `Color: ${item.color}`}
+                        </p>
+                      )}
                       {product?.price !== undefined && (
                         <p className="text-xs text-stone-400">{formatPrice(product.price)}</p>
                       )}

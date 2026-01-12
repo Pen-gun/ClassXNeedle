@@ -1,29 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { SlidersHorizontal, LayoutGrid, List, Heart, ShoppingBag, X, Search, CheckCircle2 } from 'lucide-react';
+import { SlidersHorizontal, LayoutGrid, List, Heart, ShoppingBag, X, Search } from 'lucide-react';
 import { useInfiniteProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
-import { useCartMutations } from '../hooks/useCart';
-import { useRequireAuth } from '../hooks/useAuth';
 import { formatPrice } from '../lib/utils';
 import type { Product } from '../types';
 import RatingStars from '../components/product/RatingStars';
 import useDebouncedValue from '../hooks/useDebouncedValue';
 
 // Product Card Component
-const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string) => void }) => {
+const ProductCard = ({ product }: { product: Product }) => {
   const hasDiscount = product.priceAfterDiscount && product.price && product.priceAfterDiscount < product.price;
   const discountPercent = hasDiscount 
     ? Math.round((1 - (product.priceAfterDiscount! / product.price!)) * 100) 
     : 0;
   const isOutOfStock = product.quantity !== undefined && product.quantity <= 0;
   const productHref = `/product/${product.slug}`;
-
-  const handleAdd = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    onAdd(product._id);
-  };
 
   const handleWishlistClick = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -67,12 +59,14 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
         </button>
 
         <button
-          onClick={handleAdd}
-          disabled={isOutOfStock}
-          className="quick-add-btn btn-primary text-sm py-2.5 px-5 flex items-center gap-2"
+          type="button"
+          aria-disabled={isOutOfStock}
+          className={`quick-add-btn btn-primary text-sm py-2.5 px-5 flex items-center gap-2 ${
+            isOutOfStock ? 'opacity-70' : ''
+          }`}
         >
           <ShoppingBag className="w-4 h-4" />
-          {isOutOfStock ? 'Unavailable' : 'Add to Cart'}
+          {isOutOfStock ? 'Out of Stock' : 'Choose Options'}
         </button>
       </div>
 
@@ -111,15 +105,12 @@ const Catalog = () => {
   const navigate = useNavigate();
   const limit = 24;
   const { data: categories = [] } = useCategories();
-  const { addItem } = useCartMutations();
-  const requireAuth = useRequireAuth();
   
   const selectedCategory = categoryParam || 'all';
   const [sortBy, setSortBy] = useState<string>('newest');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [toast, setToast] = useState<string | null>(null);
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
@@ -163,22 +154,6 @@ const Catalog = () => {
       navigate(`/catalog/${slug}`);
     }
   };
-
-  const handleAddToCart = (productId: string) => {
-    if (!requireAuth()) return;
-    const product = products.find((item) => item._id === productId);
-    if (product?.quantity !== undefined && product.quantity <= 0) return;
-    addItem.mutate(
-      { productId, quantity: 1 },
-      { onSuccess: () => setToast('Added to cart') }
-    );
-  };
-
-  useEffect(() => {
-    if (!toast) return;
-    const id = window.setTimeout(() => setToast(null), 2200);
-    return () => window.clearTimeout(id);
-  }, [toast]);
 
   useEffect(() => {
     const target = loadMoreRef.current;
@@ -401,7 +376,6 @@ const Catalog = () => {
                 <ProductCard
                   key={product._id}
                   product={product}
-                  onAdd={handleAddToCart}
                 />
               ))}
             </div>
@@ -421,12 +395,6 @@ const Catalog = () => {
           )}
         </div>
       </section>
-      {toast && (
-        <div className="toast toast-success">
-          <CheckCircle2 className="w-5 h-5" />
-          <span>{toast}</span>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ShoppingBag } from 'lucide-react';
 import { useProduct } from '../hooks/useProduct';
@@ -12,12 +13,21 @@ const ProductPage = () => {
   const { data: product, isLoading } = useProduct(slug);
   const { addItem } = useCartMutations();
   const requireAuth = useRequireAuth();
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
+
+  useEffect(() => {
+    if (!product) return;
+    setSelectedSize(product.size?.[0] ?? '');
+    setSelectedColor(product.color?.[0] ?? '');
+  }, [product]);
 
   const handleAddToCart = () => {
     if (!product) return;
     if (!requireAuth()) return;
     if (product.quantity !== undefined && product.quantity <= 0) return;
-    addItem.mutate({ productId: product._id, quantity: 1 });
+    if (!selectedSize || !selectedColor) return;
+    addItem.mutate({ productId: product._id, quantity: 1, size: selectedSize, color: selectedColor });
   };
 
   if (isLoading) {
@@ -57,6 +67,8 @@ const ProductPage = () => {
   const price = product.priceAfterDiscount ?? product.price ?? 0;
   const hasDiscount = product.priceAfterDiscount && product.price && product.priceAfterDiscount < product.price;
   const inStock = product.quantity === undefined || product.quantity > 0;
+  const sizeOptions = product.size ?? [];
+  const colorOptions = product.color ?? [];
 
   return (
     <div className="min-h-screen bg-accent-cream dark:bg-[#0f0f0f]">
@@ -112,10 +124,52 @@ const ProductPage = () => {
                 {product.material && <span>Material: {product.material}</span>}
               </div>
 
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-stone-600 dark:text-stone-300">Size</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {sizeOptions.map((size) => (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => setSelectedSize(size)}
+                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                          selectedSize === size
+                            ? 'border-accent-gold bg-accent-gold/10 text-accent-charcoal dark:text-accent-cream'
+                            : 'border-stone-200 text-stone-500 hover:border-stone-300 dark:border-stone-700 dark:text-stone-400'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-stone-600 dark:text-stone-300">Color</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {colorOptions.map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => setSelectedColor(color)}
+                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                          selectedColor === color
+                            ? 'border-accent-gold bg-accent-gold/10 text-accent-charcoal dark:text-accent-cream'
+                            : 'border-stone-200 text-stone-500 hover:border-stone-300 dark:border-stone-700 dark:text-stone-400'
+                        }`}
+                      >
+                        {color}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleAddToCart}
-                  disabled={!inStock || addItem.isPending}
+                  disabled={!inStock || addItem.isPending || !selectedSize || !selectedColor}
                   className="btn-gold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingBag className="w-4 h-4" />
