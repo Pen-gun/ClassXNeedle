@@ -204,22 +204,10 @@ export const createOrder = async (payload: { address: string; shippingCost?: num
 
 export const fetchOrders = async (): Promise<Order[]> => {
   try {
-    const data = await gq<{ myOrders: Order[] }>(`
-      query MyOrders {
-        myOrders(page: 1, limit: 20) {
-          _id
-          orderPrice
-          status
-          isPaid
-          createdAt
-          orderItems {
-            productId
-            quantity
-          }
-        }
-      }
-    `);
-    return data.myOrders;
+    const res = await restClient.get<{ data: { orders: Order[] } }>('/orders/my-orders', {
+      params: { page: 1, limit: 50 }
+    });
+    return res.data?.data?.orders || [];
   } catch (error) {
     console.warn('Orders fetch failed', error);
     return [];

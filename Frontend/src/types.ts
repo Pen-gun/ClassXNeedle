@@ -65,8 +65,13 @@ export type Cart = {
 
 export type Order = {
   _id: string;
-  orderItems: { productId: string; quantity: number }[];
+  orderItems: {
+    productId: string;
+    quantity: number;
+    product?: { name: string; slug: string; price?: number; coverImage?: string };
+  }[];
   orderPrice: number;
+  shippingCost?: number;
   status: string;
   isPaid: boolean;
   createdAt: string;

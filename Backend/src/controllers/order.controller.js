@@ -17,11 +17,14 @@ import mongoose from 'mongoose';
  * @access  Private
  */
 export const createOrder = asyncHandler(async (req, res) => {
-    const { address, shippingCost = 0, items } = req.body;
+    const { address, shippingCost = 0, items, phoneNumber } = req.body;
     const customerId = req.user._id;
 
     if (!address) {
         throw new ApiError(400, "Delivery address is required");
+    }
+    if (!phoneNumber) {
+        throw new ApiError(400, "Phone number is required");
     }
 
     // Get user's cart
@@ -83,7 +86,8 @@ export const createOrder = asyncHandler(async (req, res) => {
         customer: customerId,
         address,
         shippingCost,
-        orderPrice
+        orderPrice,
+        phoneNumber
     });
 
     // Update product quantities
