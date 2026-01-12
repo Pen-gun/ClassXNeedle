@@ -1,5 +1,6 @@
 # ClassXNeedle Platform
 Monorepo for the ClassXNeedle commerce experience. The backend exposes REST (mutations) and GraphQL (queries) over MongoDB, while the frontend is a Vite/React storefront that consumes both surfaces.
+still improving.
 
 ## Repository layout
 - `Backend/` – Express + MongoDB service with JWT auth, Cloudinary uploads, REST + GraphQL. See `Backend/README.md`.
