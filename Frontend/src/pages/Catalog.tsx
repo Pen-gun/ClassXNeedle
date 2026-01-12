@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { SlidersHorizontal, LayoutGrid, List, Heart, ShoppingBag, X, Search, CheckCircle2 } from 'lucide-react';
-import { useProducts } from '../hooks/useProducts';
+import { useInfiniteProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
 import { useCartMutations } from '../hooks/useCart';
 import { useRequireAuth } from '../hooks/useAuth';
 import { formatPrice } from '../lib/utils';
 import type { Product } from '../types';
 import RatingStars from '../components/product/RatingStars';
+import useDebouncedValue from '../hooks/useDebouncedValue';
 
 // Product Card Component
 const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string) => void }) => {
@@ -108,7 +109,7 @@ const sortOptions = [
 const Catalog = () => {
   const { category: categoryParam } = useParams<{ category?: string }>();
   const navigate = useNavigate();
-  const { data: products = [], isLoading: loadingProducts } = useProducts();
+  const limit = 24;
   const { data: categories = [] } = useCategories();
   const { addItem } = useCartMutations();
   const requireAuth = useRequireAuth();
@@ -119,6 +120,41 @@ const Catalog = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [toast, setToast] = useState<string | null>(null);
+  const debouncedSearch = useDebouncedValue(searchQuery, 300);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  const selectedCategoryId = useMemo(() => {
+    if (selectedCategory === 'all') return undefined;
+    return categories.find((cat) => cat.slug === selectedCategory)?._id;
+  }, [categories, selectedCategory]);
+
+  const sortParam = useMemo(() => {
+    switch (sortBy) {
+      case 'price-low':
+        return 'price';
+      case 'price-high':
+        return '-price';
+      case 'popular':
+        return '-ratingsAverage';
+      default:
+        return '-createdAt';
+    }
+  }, [sortBy]);
+
+  const {
+    data,
+    isLoading: loadingProducts,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useInfiniteProducts({
+    limit,
+    search: debouncedSearch || undefined,
+    category: selectedCategoryId,
+    sort: sortParam
+  });
+  const products = data?.pages.flatMap((page) => page.products) ?? [];
+  const totalProducts = data?.pages[0]?.pagination.totalProducts ?? 0;
 
   const handleCategoryChange = (slug: string) => {
     if (slug === 'all') {
@@ -127,41 +163,6 @@ const Catalog = () => {
       navigate(`/catalog/${slug}`);
     }
   };
-
-  const filtered = useMemo(() => {
-    let result = products;
-    
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      result = result.filter((p) => p.category?.slug === selectedCategory);
-    }
-    
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter((p) => 
-        p.name.toLowerCase().includes(query) ||
-        p.description?.toLowerCase().includes(query)
-      );
-    }
-    
-    // Sort
-    switch (sortBy) {
-      case 'price-low':
-        result = [...result].sort((a, b) => (a.price || 0) - (b.price || 0));
-        break;
-      case 'price-high':
-        result = [...result].sort((a, b) => (b.price || 0) - (a.price || 0));
-        break;
-      case 'popular':
-        result = [...result].sort((a, b) => (b.ratingsAverage || 0) - (a.ratingsAverage || 0));
-        break;
-      default:
-        break;
-    }
-    
-    return result;
-  }, [products, selectedCategory, sortBy, searchQuery]);
 
   const handleAddToCart = (productId: string) => {
     if (!requireAuth()) return;
@@ -178,6 +179,21 @@ const Catalog = () => {
     const id = window.setTimeout(() => setToast(null), 2200);
     return () => window.clearTimeout(id);
   }, [toast]);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target || !hasNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage]);
 
   return (
     <div className="min-h-screen bg-accent-cream dark:bg-[#0f0f0f]">
@@ -205,7 +221,9 @@ const Catalog = () => {
                 type="text"
                 placeholder="Search products..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                }}
                 className="w-full pl-10 pr-4 py-2.5 input"
                 autoFocus
               />
@@ -255,7 +273,9 @@ const Catalog = () => {
               {/* Sort Dropdown */}
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(e) => {
+                  setSortBy(e.target.value);
+                }}
                 className="input py-2.5 px-4 pr-10 bg-transparent cursor-pointer"
               >
                 {sortOptions.map((opt) => (
@@ -331,7 +351,8 @@ const Catalog = () => {
           {/* Results Count */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-sm text-stone-500">
-              Showing <span className="font-medium text-accent-charcoal dark:text-accent-cream">{filtered.length}</span> products
+              Showing <span className="font-medium text-accent-charcoal dark:text-accent-cream">{products.length}</span>
+              {totalProducts ? ` of ${totalProducts}` : ''} products
             </p>
             {selectedCategory !== 'all' && (
               <button
@@ -355,7 +376,7 @@ const Catalog = () => {
                 </div>
               ))}
             </div>
-          ) : filtered.length === 0 ? (
+          ) : products.length === 0 ? (
             <div className="text-center py-20">
               <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-stone-100 dark:bg-white/10 flex items-center justify-center">
                 <Search className="w-8 h-8 text-stone-400" />
@@ -376,13 +397,26 @@ const Catalog = () => {
             </div>
           ) : (
             <div className={`grid gap-4 lg:gap-6 ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1 max-w-3xl'}`}>
-              {filtered.map((product) => (
+              {products.map((product) => (
                 <ProductCard
                   key={product._id}
                   product={product}
                   onAdd={handleAddToCart}
                 />
               ))}
+            </div>
+          )}
+          <div ref={loadMoreRef} className="h-8" />
+          {hasNextPage && (
+            <div className="flex items-center justify-center mt-6">
+              <button
+                type="button"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="btn-ghost px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isFetchingNextPage ? 'Loading...' : 'Load more'}
+              </button>
             </div>
           )}
         </div>

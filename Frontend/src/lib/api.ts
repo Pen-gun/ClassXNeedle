@@ -68,30 +68,21 @@ export const fetchFeaturedProducts = async (): Promise<Product[]> => {
   }
 };
 
-export const fetchProducts = async (): Promise<Product[]> => {
+export const fetchProducts = async (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  sort?: string;
+}): Promise<{ products: Product[]; pagination: Pagination }> => {
   try {
-    const data = await gq<{ products: { products: Product[] } }>(`
-      query Products {
-        products(filter: { limit: 24, sort: "-createdAt" }) {
-          products {
-            _id
-            name
-            slug
-            description
-            price
-            priceAfterDiscount
-            ratingsAverage
-            quantity
-            coverImage
-            category { _id name slug }
-          }
-        }
-      }
-    `);
-    return data.products.products;
+    const res = await restClient.get<{ data: { products: Product[]; pagination: Pagination } }>('/products', {
+      params
+    });
+    return res.data?.data || { products: [], pagination: { currentPage: 1, totalPages: 1, totalProducts: 0, limit: params?.limit || 0 } };
   } catch (error) {
-    console.warn('Products fallback', error);
-    return [];
+    console.warn('Products fetch failed', error);
+    return { products: [], pagination: { currentPage: 1, totalPages: 1, totalProducts: 0, limit: params?.limit || 0 } };
   }
 };
 

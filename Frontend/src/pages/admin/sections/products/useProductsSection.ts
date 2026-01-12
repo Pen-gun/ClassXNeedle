@@ -10,7 +10,7 @@ import {
   adminUpdateProduct
 } from '../../../../lib/api';
 import type { AdminBrand, AdminCategory, AdminProduct, AdminSubCategory } from '../../../../types';
-import useDebouncedValue from '../../hooks/useDebouncedValue';
+import useDebouncedValue from '../../../../hooks/useDebouncedValue';
 
 export type ProductFormState = {
   name: string;

@@ -4,7 +4,7 @@ import { adminDeleteUser, adminGetUsers, adminToggleUserStatus } from '../../../
 import SectionShell from '../SectionShell';
 import { formatCurrency } from '../utils';
 import PaginationControls from '../components/PaginationControls';
-import useDebouncedValue from '../hooks/useDebouncedValue';
+import useDebouncedValue from '../../../hooks/useDebouncedValue';
 
 const UsersSection = () => {
   const qc = useQueryClient();
