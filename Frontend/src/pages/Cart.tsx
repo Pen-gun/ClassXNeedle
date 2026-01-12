@@ -64,9 +64,24 @@ const Cart = () => {
   const getErrorMessage = (error: unknown) => {
     if (!error) return '';
     if (typeof error === 'string') return error;
-    if (error instanceof Error) return error.message;
     const maybeAxios = error as { response?: { data?: { message?: string } } };
-    return maybeAxios.response?.data?.message || 'Something went wrong. Please try again.';
+    const rawMessage = maybeAxios.response?.data?.message;
+    if (rawMessage) {
+      switch (rawMessage) {
+        case 'Coupon has expired':
+          return 'Coupon expired';
+        case 'Coupon usage limit reached':
+          return 'Coupon used up';
+        case 'Cannot apply coupon to empty cart':
+          return 'Add items to cart before applying a coupon';
+        case 'Invalid coupon code':
+          return 'Invalid coupon';
+        default:
+          return rawMessage;
+      }
+    }
+    if (error instanceof Error) return error.message;
+    return 'Something went wrong. Please try again.';
   };
 
   const cartMutationError =
@@ -286,4 +301,3 @@ const Cart = () => {
 };
 
 export default Cart;
-
