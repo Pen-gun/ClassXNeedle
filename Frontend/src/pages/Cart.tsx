@@ -12,6 +12,7 @@ import {
 import { useCart, useCartMutations } from '../hooks/useCart';
 import { useOrderMutations } from '../hooks/useOrders';
 import { formatPrice } from '../lib/utils';
+import { useMe } from '../hooks';
 
 const Cart = () => {
   const { data: cart, isLoading, refetch: refetchCart } = useCart();
@@ -19,8 +20,9 @@ const Cart = () => {
   const { create } = useOrderMutations();
   const [coupon, setCoupon] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
-  const [address, setAddress] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const { data: me } = useMe();
+  const [address, setAddress] = useState(me?.addresses[0] || '');
+  const [phoneNumber, setPhoneNumber] = useState(me?.phone || '');
   const [selectionDefault, setSelectionDefault] = useState(true);
   const [selectionOverrides, setSelectionOverrides] = useState<Record<string, boolean>>({});
 
