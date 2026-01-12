@@ -64,7 +64,7 @@ export const registerUser = asyncHandler(async (req, res) => {
         .status(201)
         .cookie('accessToken', accessToken, cookieOptions)
         .cookie('refreshToken', refreshToken, cookieOptions)
-        .json(new ApiResponse(201, { user: userResponse, accessToken, refreshToken }, "User registered successfully"));
+        .json(new ApiResponse(201, { user: userResponse, accessToken }, "User registered successfully"));
 });
 
 /**
@@ -126,7 +126,7 @@ export const loginUser = asyncHandler(async (req, res) => {
         .status(200)
         .cookie('accessToken', accessToken, cookieOptions)
         .cookie('refreshToken', refreshToken, cookieOptions)
-        .json(new ApiResponse(200, { user: userResponse, accessToken, refreshToken }, "Login successful"));
+        .json(new ApiResponse(200, { user: userResponse, accessToken }, "Login successful"));
 });
 
 /**
@@ -185,7 +185,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
             .status(200)
             .cookie('accessToken', accessToken, cookieOptions)
             .cookie('refreshToken', refreshToken, cookieOptions)
-            .json(new ApiResponse(200, { accessToken, refreshToken }, "Access token refreshed"));
+            .json(new ApiResponse(200, { accessToken }, "Access token refreshed"));
     } catch (error) {
         throw new ApiError(401, error?.message || "Invalid refresh token");
     }

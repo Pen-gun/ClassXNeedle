@@ -6,3 +6,5 @@ export * from './utils';
 
 // Constants
 export * from './constants';
+// Performance utilities
+export * from './performance';

@@ -7,3 +7,4 @@ export { Skeleton } from './Skeleton.tsx';
 export { IconButton, type IconButtonProps } from './IconButton.tsx';
 export { EmptyState, type EmptyStateProps } from './EmptyState.tsx';
 export { LoadingSpinner, type LoadingSpinnerProps } from './LoadingSpinner.tsx';
+export { default as OptimizedImage, LazyImage, LazyBackground } from './OptimizedImage.tsx';
