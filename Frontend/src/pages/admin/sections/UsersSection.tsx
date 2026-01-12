@@ -4,15 +4,17 @@ import { adminDeleteUser, adminGetUsers, adminToggleUserStatus } from '../../../
 import SectionShell from '../SectionShell';
 import { formatCurrency } from '../utils';
 import PaginationControls from '../components/PaginationControls';
+import useDebouncedValue from '../hooks/useDebouncedValue';
 
 const UsersSection = () => {
   const qc = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const limit = 20;
+  const debouncedSearch = useDebouncedValue(search, 300);
   const { data: usersData } = useQuery({
-    queryKey: ['admin', 'users', { page, limit, search }],
-    queryFn: () => adminGetUsers({ page, limit, search: search || undefined })
+    queryKey: ['admin', 'users', { page, limit, search: debouncedSearch }],
+    queryFn: () => adminGetUsers({ page, limit, search: debouncedSearch || undefined })
   });
   const users = usersData?.users ?? [];
   const totalPages = usersData?.pagination?.totalPages ?? 1;

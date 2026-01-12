@@ -10,6 +10,7 @@ import {
   adminUpdateProduct
 } from '../../../../lib/api';
 import type { AdminBrand, AdminCategory, AdminProduct, AdminSubCategory } from '../../../../types';
+import useDebouncedValue from '../../hooks/useDebouncedValue';
 
 export type ProductFormState = {
   name: string;
@@ -46,10 +47,11 @@ const useProductsSection = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const limit = 20;
+  const debouncedSearch = useDebouncedValue(search, 300);
 
   const { data: productsData } = useQuery({
-    queryKey: ['admin', 'products', { page, limit, search }],
-    queryFn: () => adminGetProducts({ page, limit, search: search || undefined })
+    queryKey: ['admin', 'products', { page, limit, search: debouncedSearch }],
+    queryFn: () => adminGetProducts({ page, limit, search: debouncedSearch || undefined })
   });
   const { data: categoriesData } = useQuery({
     queryKey: ['admin', 'categories'],
