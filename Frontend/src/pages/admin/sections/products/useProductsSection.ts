@@ -43,9 +43,13 @@ const initialFormState: ProductFormState = {
 
 const useProductsSection = () => {
   const qc = useQueryClient();
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const limit = 20;
+
   const { data: productsData } = useQuery({
-    queryKey: ['admin', 'products'],
-    queryFn: () => adminGetProducts({ page: 1, limit: 100 })
+    queryKey: ['admin', 'products', { page, limit, search }],
+    queryFn: () => adminGetProducts({ page, limit, search: search || undefined })
   });
   const { data: categoriesData } = useQuery({
     queryKey: ['admin', 'categories'],
@@ -61,6 +65,7 @@ const useProductsSection = () => {
   });
 
   const products = (productsData?.products ?? []) as AdminProduct[];
+  const totalPages = productsData?.pagination?.totalPages ?? 1;
   const categories = (categoriesData?.categories ?? []) as AdminCategory[];
   const subCategories = (subCategoriesData?.subCategories ?? []) as AdminSubCategory[];
   const brands = (brandsData?.brands ?? []) as AdminBrand[];
@@ -162,6 +167,11 @@ const useProductsSection = () => {
 
   return {
     products,
+    page,
+    totalPages,
+    search,
+    setPage,
+    setSearch,
     categories,
     subCategories,
     brands,

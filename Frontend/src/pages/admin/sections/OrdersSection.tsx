@@ -1,9 +1,10 @@
 import SectionShell from '../SectionShell';
 import OrdersList from './orders/OrdersList';
 import useOrdersSection from './orders/useOrdersSection';
+import PaginationControls from '../components/PaginationControls';
 
 const OrdersSection = () => {
-  const { orders, updateStatus, markPaid, cancel } = useOrdersSection();
+  const { orders, updateStatus, markPaid, cancel, page, totalPages, setPage } = useOrdersSection();
 
   return (
     <SectionShell title="Orders" subtitle="Track and fulfill customer orders.">
@@ -12,6 +13,11 @@ const OrdersSection = () => {
         onStatus={updateStatus}
         onPaid={markPaid}
         onCancel={cancel}
+      />
+      <PaginationControls
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
       />
     </SectionShell>
   );
