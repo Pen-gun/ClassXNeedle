@@ -69,14 +69,14 @@ const SubCategoriesSection = () => {
         <h3 className="text-lg font-medium">{editing ? 'Edit subcategory' : 'New subcategory'}</h3>
         <form onSubmit={submit} className="mt-4 flex flex-wrap gap-3">
           <input
-            className="input bg-white/10 text-white flex-1 min-w-[220px]"
+            className="input bg-gray-700 text-white flex-1 min-w-[220px]"
             placeholder="Subcategory name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
           <select
-            className="input bg-white/10 text-white min-w-[200px]"
+            className="input bg-gray-700 text-white min-w-[200px]"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             required

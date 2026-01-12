@@ -33,58 +33,58 @@ const ProductsForm = ({
     <h3 className="text-lg font-medium">{editing ? 'Edit product' : 'Create new product'}</h3>
     <form onSubmit={onSubmit} className="mt-4 grid lg:grid-cols-3 gap-4">
       <input
-        className="input bg-white/10 text-white"
+        className="input bg-gray-700 text-white"
         placeholder="Name"
         value={form.name}
         onChange={(e) => onFieldChange('name', e.target.value)}
         required
       />
       <input
-        className="input bg-white/10 text-white"
+        className="input bg-gray-700 text-white"
         placeholder="Price"
         value={form.price}
         onChange={(e) => onFieldChange('price', e.target.value)}
         required
       />
       <input
-        className="input bg-white/10 text-white"
+        className="input bg-gray-700 text-white"
         placeholder="Discount price"
         value={form.priceAfterDiscount}
         onChange={(e) => onFieldChange('priceAfterDiscount', e.target.value)}
       />
       <input
-        className="input bg-white/10 text-white"
+        className="input bg-gray-700 text-white"
         placeholder="Quantity"
         value={form.quantity}
         onChange={(e) => onFieldChange('quantity', e.target.value)}
       />
       <input
-        className="input bg-white/10 text-white"
+        className="input bg-gray-700 text-white"
         placeholder="Material"
         value={form.material}
         onChange={(e) => onFieldChange('material', e.target.value)}
       />
       <input
-        className="input bg-white/10 text-white"
+        className="input bg-gray-700 text-white"
         placeholder="Gender (e.g. Men, Women, Unisex)"
         value={form.gender}
         onChange={(e) => onFieldChange('gender', e.target.value)}
         required
       />
       <input
-        className="input bg-white/10 text-white"
+        className="input bg-gray-700 text-white"
         placeholder="Sizes (comma separated)"
         value={form.size}
         onChange={(e) => onFieldChange('size', e.target.value)}
       />
       <input
-        className="input bg-white/10 text-white"
+        className="input bg-gray-700 text-white"
         placeholder="Colors (comma separated)"
         value={form.color}
         onChange={(e) => onFieldChange('color', e.target.value)}
       />
       <select
-        className="input bg-white/10 text-white"
+        className="input bg-gray-700 text-white"
         value={form.category}
         onChange={(e) => onFieldChange('category', e.target.value)}
         required
@@ -97,7 +97,7 @@ const ProductsForm = ({
         ))}
       </select>
       <select
-        className="input bg-white/10 text-white"
+        className="input bg-gray-700 text-white"
         value={form.subCategory}
         onChange={(e) => onFieldChange('subCategory', e.target.value)}
       >
@@ -109,7 +109,7 @@ const ProductsForm = ({
         ))}
       </select>
       <select
-        className="input bg-white/10 text-white"
+        className="input bg-gray-700 text-white"
         value={form.brand}
         onChange={(e) => onFieldChange('brand', e.target.value)}
       >
@@ -121,7 +121,7 @@ const ProductsForm = ({
         ))}
       </select>
       <textarea
-        className="input bg-white/10 text-white lg:col-span-3"
+        className="input bg-gray-700 text-white lg:col-span-3"
         placeholder="Description"
         value={form.description}
         onChange={(e) => onFieldChange('description', e.target.value)}

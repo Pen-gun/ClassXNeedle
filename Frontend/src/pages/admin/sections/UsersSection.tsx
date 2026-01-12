@@ -39,7 +39,7 @@ const UsersSection = () => {
                 <span className="text-stone-400">Spent: {formatCurrency(user.totalSpent)}</span>
                 <button
                   onClick={() => toggleMutation.mutate({ id: user._id, active: !user.active })}
-                  className="btn-secondary text-xs"
+                  className="btn-secondary text-xs bg-gray-700 hover:bg-gray-600 text-white"
                 >
                   {user.active ? 'Deactivate' : 'Activate'}
                 </button>
