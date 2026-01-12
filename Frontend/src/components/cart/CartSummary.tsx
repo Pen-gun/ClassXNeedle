@@ -1,4 +1,4 @@
-import { Lock, MapPin, Tag, X, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
+import { Lock, MapPin, Tag, X, ShieldCheck, Truck, RefreshCw, Phone } from 'lucide-react';
 
 type Totals = {
   subtotal: number;
@@ -12,6 +12,7 @@ type Props = {
   coupon: string;
   couponApplied: boolean;
   address: string;
+  phoneNumber: string;
   canCheckout: boolean;
   isCartUpdating: boolean;
   isPlacingOrder: boolean;
@@ -20,6 +21,7 @@ type Props = {
   onApplyCoupon: () => void;
   onRemoveCoupon: () => void;
   onAddressChange: (value: string) => void;
+  onPhoneChange: (value: string) => void;
   onCheckout: () => void;
   formatPrice: (value: number) => string;
 };
@@ -29,6 +31,7 @@ const CartSummary = ({
   coupon,
   couponApplied,
   address,
+  phoneNumber,
   canCheckout,
   isCartUpdating,
   isPlacingOrder,
@@ -37,6 +40,7 @@ const CartSummary = ({
   onApplyCoupon,
   onRemoveCoupon,
   onAddressChange,
+  onPhoneChange,
   onCheckout,
   formatPrice
 }: Props) => (
@@ -74,6 +78,19 @@ const CartSummary = ({
           </button>
         </div>
       )}
+    </div>
+    <div className='mb-6'>
+      <label className='text-sm font-medium mb-2 block flex items-center gap-2'>
+        <Phone className='w-5 h-5' />
+        Contact Number
+      </label>
+      <input
+        value={phoneNumber}
+        onChange={(e) => onPhoneChange(e.target.value)}
+        type='text'
+        className='input w-full'
+        placeholder='Enter your phone number'
+      />
     </div>
 
     <div className="mb-6">

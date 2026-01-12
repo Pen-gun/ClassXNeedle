@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import { useOrders, useOrderMutations } from '../hooks/useOrders';
 import { formatPrice } from '../lib/utils';
 import type { Order } from '../types';
-import { Package, Truck, Check, X, Clock, ShoppingBag, ChevronDown } from 'lucide-react';
+import { Package, Check, X, Clock, ShoppingBag, ChevronDown, type LucideIcon } from 'lucide-react';
 
 type StatusConfig = {
   color: string;
-  icon: () => React.ReactElement;
+  icon: LucideIcon;
   label: string;
 };
 

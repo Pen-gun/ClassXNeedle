@@ -20,6 +20,7 @@ const Cart = () => {
   const [coupon, setCoupon] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
   const [address, setAddress] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [selectionDefault, setSelectionDefault] = useState(true);
   const [selectionOverrides, setSelectionOverrides] = useState<Record<string, boolean>>({});
 
@@ -96,6 +97,7 @@ const Cart = () => {
 
   const handleCheckout = async () => {
     if (!address.trim()) return;
+    if (!phoneNumber.trim()) return;
     if (isCartUpdating) return;
     const refreshed = await refetchCart();
     const refreshedCart = refreshed.data;
@@ -121,6 +123,7 @@ const Cart = () => {
     if (!window.confirm('Are you sure you want to place this order?')) return;
     create.mutate({
       address,
+      phoneNumber,
       items: refreshedSelectedInStockItems.map((item) => ({
         productId: item.productId._id,
         quantity: item.quantity
@@ -253,7 +256,8 @@ const Cart = () => {
                   coupon={coupon}
                   couponApplied={couponApplied}
                   address={address}
-                  canCheckout={address.trim().length > 0 && selectedInStockItems.length > 0 && !isCartUpdating}
+                  phoneNumber={phoneNumber}
+                  canCheckout={address.trim().length > 0 && phoneNumber.trim().length > 0 && selectedInStockItems.length > 0 && !isCartUpdating}
                   isCartUpdating={isCartUpdating}
                   isPlacingOrder={create.isPending}
                   orderErrorMessage={getErrorMessage(create.error)}
@@ -261,6 +265,7 @@ const Cart = () => {
                   onApplyCoupon={handleApplyCoupon}
                   onRemoveCoupon={handleRemoveCoupon}
                   onAddressChange={setAddress}
+                  onPhoneChange={setPhoneNumber}
                   onCheckout={handleCheckout}
                   formatPrice={formatPrice}
                 />
