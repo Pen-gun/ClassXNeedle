@@ -49,7 +49,17 @@ export const createOrder = asyncHandler(async (req, res) => {
         if (!product) {
             throw new ApiError(404, `Product ${item.productId} not found`);
         }
-        if (product.quantity < item.quantity) {
+        const variant = product.variants?.find(
+            (variantItem) => variantItem.size === item.size && variantItem.color === item.color
+        );
+        if (product.variants?.length) {
+            if (!item.size || !item.color || !variant) {
+                throw new ApiError(400, `Selected variant not available for product: ${product.name}`);
+            }
+            if (variant.quantity < item.quantity) {
+                throw new ApiError(400, `Insufficient quantity for product: ${product.name}`);
+            }
+        } else if (product.quantity < item.quantity) {
             throw new ApiError(400, `Insufficient quantity for product: ${product.name}`);
         }
     }
@@ -117,10 +127,19 @@ export const createOrder = asyncHandler(async (req, res) => {
 
     // Update product quantities
     for (const item of selectedItems) {
-        await Product.findByIdAndUpdate(
-            item.productId,
-            { $inc: { quantity: -item.quantity } }
-        );
+        const product = await Product.findById(item.productId);
+        if (product?.variants?.length) {
+            await Product.updateOne(
+                { _id: item.productId },
+                { $inc: { 'variants.$[variant].quantity': -item.quantity, quantity: -item.quantity } },
+                { arrayFilters: [{ 'variant.size': item.size, 'variant.color': item.color }] }
+            );
+        } else {
+            await Product.findByIdAndUpdate(
+                item.productId,
+                { $inc: { quantity: -item.quantity } }
+            );
+        }
     }
 
     // Remove selected items from cart
@@ -599,10 +618,19 @@ export const cancelOrder = asyncHandler(async (req, res) => {
 
     // Restore product quantities
     for (const item of order.orderItems) {
-        await Product.findByIdAndUpdate(
-            item.productId,
-            { $inc: { quantity: item.quantity } }
-        );
+        const product = await Product.findById(item.productId);
+        if (product?.variants?.length) {
+            await Product.updateOne(
+                { _id: item.productId },
+                { $inc: { 'variants.$[variant].quantity': item.quantity, quantity: item.quantity } },
+                { arrayFilters: [{ 'variant.size': item.size, 'variant.color': item.color }] }
+            );
+        } else {
+            await Product.findByIdAndUpdate(
+                item.productId,
+                { $inc: { quantity: item.quantity } }
+            );
+        }
     }
 
     order.status = "Cancelled";

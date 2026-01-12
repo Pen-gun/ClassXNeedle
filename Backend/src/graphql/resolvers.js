@@ -276,6 +276,43 @@ export const resolvers = {
       { $unwind: { path: '$cartItem', preserveNullAndEmptyArrays: true } },
       { $lookup: { from: 'products', localField: 'cartItem.productId', foreignField: '_id', as: 'cartItem.product' } },
       { $unwind: { path: '$cartItem.product', preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          'cartItem.variantQuantity': {
+            $let: {
+              vars: {
+                hasVariants: {
+                  $gt: [
+                    { $size: { $ifNull: ['$cartItem.product.variants', []] } },
+                    0
+                  ]
+                },
+                match: {
+                  $first: {
+                    $filter: {
+                      input: '$cartItem.product.variants',
+                      as: 'variant',
+                      cond: {
+                        $and: [
+                          { $eq: ['$$variant.size', '$cartItem.size'] },
+                          { $eq: ['$$variant.color', '$cartItem.color'] }
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              in: {
+                $cond: [
+                  '$$hasVariants',
+                  { $ifNull: ['$$match.quantity', 0] },
+                  '$cartItem.product.quantity'
+                ]
+              }
+            }
+          }
+        }
+      },
       { $addFields: { 'cartItem.productId': '$cartItem.product' } },
       { $project: { 'cartItem.product': 0 } },
       {

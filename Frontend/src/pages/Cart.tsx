@@ -34,7 +34,7 @@ const Cart = () => {
   const inStockItems = useMemo(
     () =>
       items.filter((item) => {
-        const stockQty = item.productId.quantity;
+        const stockQty = item.variantQuantity ?? item.productId.quantity;
         return stockQty === undefined || stockQty > 0;
       }),
     [items]
@@ -42,7 +42,7 @@ const Cart = () => {
   const outOfStockItems = useMemo(
     () =>
       items.filter((item) => {
-        const stockQty = item.productId.quantity;
+        const stockQty = item.variantQuantity ?? item.productId.quantity;
         return stockQty !== undefined && stockQty <= 0;
       }),
     [items]
@@ -51,7 +51,7 @@ const Cart = () => {
     const next: Record<string, boolean> = {};
     for (const item of inStockItems) {
       const id = getItemKey(item);
-      const stockQty = item.productId.quantity;
+      const stockQty = item.variantQuantity ?? item.productId.quantity;
       if (stockQty !== undefined && item.quantity > stockQty) {
         next[id] = false;
         continue;
@@ -124,13 +124,13 @@ const Cart = () => {
     const refreshedCart = refreshed.data;
     const refreshedItems: CartLineItem[] = refreshedCart?.cartItem ?? [];
     const refreshedInStockItems = refreshedItems.filter((item) => {
-      const stockQty = item.productId.quantity;
+      const stockQty = item.variantQuantity ?? item.productId.quantity;
       return stockQty === undefined || stockQty > 0;
     });
     const refreshedSelectedIds: Record<string, boolean> = {};
     for (const item of refreshedInStockItems) {
       const id = getItemKey(item);
-      const stockQty = item.productId.quantity;
+      const stockQty = item.variantQuantity ?? item.productId.quantity;
       if (stockQty !== undefined && item.quantity > stockQty) {
         refreshedSelectedIds[id] = false;
         continue;
@@ -227,16 +227,19 @@ const Cart = () => {
                     item={item}
                     selected={!!selectedIds[itemKey]}
                     selectionDisabled={
-                      item.productId.quantity !== undefined && item.quantity > item.productId.quantity
+                      (item.variantQuantity ?? item.productId.quantity) !== undefined &&
+                      item.quantity > (item.variantQuantity ?? item.productId.quantity)
                     }
                     incrementDisabled={
-                      (item.productId.quantity !== undefined && item.quantity >= item.productId.quantity) ||
+                      ((item.variantQuantity ?? item.productId.quantity) !== undefined &&
+                        item.quantity >= (item.variantQuantity ?? item.productId.quantity)) ||
                       isUpdatingItem
                     }
                     decrementDisabled={isUpdatingItem}
                     stockWarning={
-                      item.productId.quantity !== undefined && item.quantity > item.productId.quantity
-                        ? `Only ${item.productId.quantity} left in stock`
+                      (item.variantQuantity ?? item.productId.quantity) !== undefined &&
+                      item.quantity > (item.variantQuantity ?? item.productId.quantity)
+                        ? `Only ${item.variantQuantity ?? item.productId.quantity} left in stock`
                         : undefined
                     }
                     onToggleSelected={(checked) => {
@@ -266,7 +269,7 @@ const Cart = () => {
                     }
                     onDecrement={() => {
                       if (item.quantity <= 1) return;
-                      const stockQty = item.productId.quantity;
+                      const stockQty = item.variantQuantity ?? item.productId.quantity;
                       let nextQuantity = item.quantity - 1;
                       if (stockQty !== undefined && nextQuantity > stockQty) {
                         nextQuantity = stockQty;

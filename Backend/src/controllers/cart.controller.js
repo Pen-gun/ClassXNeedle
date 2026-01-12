@@ -10,6 +10,26 @@ import mongoose from 'mongoose';
 // CART CONTROLLERS
 // ===============================
 
+const getVariantQuantity = (product, size, color) => {
+    if (!product || !Array.isArray(product.variants) || product.variants.length === 0) {
+        return product?.quantity;
+    }
+    const match = product.variants.find(
+        (variant) => variant.size === size && variant.color === color
+    );
+    return match ? match.quantity : undefined;
+};
+
+const formatCartResponse = (cartDoc) => {
+    if (!cartDoc) return cartDoc;
+    const cart = cartDoc.toObject();
+    cart.cartItem = cart.cartItem.map((item) => ({
+        ...item,
+        variantQuantity: getVariantQuantity(item.productId, item.size, item.color) ?? 0
+    }));
+    return cart;
+};
+
 /**
  * @desc    Get user's cart
  * @route   GET /api/cart
@@ -43,6 +63,43 @@ export const getCart = asyncHandler(async (req, res) => {
             }
         },
         {
+            $addFields: {
+                'cartItem.variantQuantity': {
+                    $let: {
+                        vars: {
+                            hasVariants: {
+                                $gt: [
+                                    { $size: { $ifNull: ['$cartItem.productDetails.variants', []] } },
+                                    0
+                                ]
+                            },
+                            match: {
+                                $first: {
+                                    $filter: {
+                                        input: '$cartItem.productDetails.variants',
+                                        as: 'variant',
+                                        cond: {
+                                            $and: [
+                                                { $eq: ['$$variant.size', '$cartItem.size'] },
+                                                { $eq: ['$$variant.color', '$cartItem.color'] }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        in: {
+                            $cond: [
+                                '$$hasVariants',
+                                { $ifNull: ['$$match.quantity', 0] },
+                                '$cartItem.productDetails.quantity'
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
             $group: {
                 _id: '$_id',
                 customer: { $first: '$customer' },
@@ -58,6 +115,7 @@ export const getCart = asyncHandler(async (req, res) => {
                         price: '$cartItem.price',
                         size: '$cartItem.size',
                         color: '$cartItem.color',
+                        variantQuantity: '$cartItem.variantQuantity',
                         product: {
                             _id: '$cartItem.productDetails._id',
                             name: '$cartItem.productDetails.name',
@@ -117,15 +175,23 @@ export const addToCart = asyncHandler(async (req, res) => {
     if (!product) {
         throw new ApiError(404, "Product not found");
     }
-
-    if (product.quantity < quantity) {
-        throw new ApiError(400, "Insufficient product quantity");
-    }
     if (Array.isArray(product.size) && !product.size.includes(size)) {
         throw new ApiError(400, "Selected size is not available");
     }
     if (Array.isArray(product.color) && !product.color.includes(color)) {
         throw new ApiError(400, "Selected color is not available");
+    }
+
+    const variantQuantity = getVariantQuantity(product, size, color);
+    if (product.variants?.length) {
+        if (variantQuantity === undefined) {
+            throw new ApiError(400, "Selected variant is not available");
+        }
+        if (variantQuantity < quantity) {
+            throw new ApiError(400, "Insufficient product quantity");
+        }
+    } else if (product.quantity < quantity) {
+        throw new ApiError(400, "Insufficient product quantity");
     }
 
     const price = product.priceAfterDiscount || product.price;
@@ -151,7 +217,11 @@ export const addToCart = asyncHandler(async (req, res) => {
 
         if (existingItemIndex > -1) {
             // Update quantity
-            cart.cartItem[existingItemIndex].quantity += quantity;
+            const nextQuantity = cart.cartItem[existingItemIndex].quantity + quantity;
+            if (product.variants?.length && variantQuantity !== undefined && variantQuantity < nextQuantity) {
+                throw new ApiError(400, "Insufficient product quantity");
+            }
+            cart.cartItem[existingItemIndex].quantity = nextQuantity;
             cart.cartItem[existingItemIndex].price = price;
         } else {
             // Add new item
@@ -167,11 +237,11 @@ export const addToCart = asyncHandler(async (req, res) => {
     const updatedCart = await Cart.findById(cart._id)
         .populate({
             path: 'cartItem.productId',
-            select: 'name slug coverImage price priceAfterDiscount quantity'
+            select: 'name slug coverImage price priceAfterDiscount quantity variants'
         })
         .populate('discount');
 
-    res.status(200).json(new ApiResponse(200, updatedCart, "Item added to cart successfully"));
+    res.status(200).json(new ApiResponse(200, formatCartResponse(updatedCart), "Item added to cart successfully"));
 });
 
 /**
@@ -197,7 +267,15 @@ export const updateCartItem = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Product not found");
     }
 
-    if (product.quantity < quantity) {
+    const variantQuantity = getVariantQuantity(product, size, color);
+    if (product.variants?.length) {
+        if (variantQuantity === undefined) {
+            throw new ApiError(400, "Selected variant is not available");
+        }
+        if (variantQuantity < quantity) {
+            throw new ApiError(400, "Insufficient product quantity");
+        }
+    } else if (product.quantity < quantity) {
         throw new ApiError(400, "Insufficient product quantity");
     }
 
@@ -230,11 +308,11 @@ export const updateCartItem = asyncHandler(async (req, res) => {
     const updatedCart = await Cart.findById(cart._id)
         .populate({
             path: 'cartItem.productId',
-            select: 'name slug coverImage price priceAfterDiscount quantity'
+            select: 'name slug coverImage price priceAfterDiscount quantity variants'
         })
         .populate('discount');
 
-    res.status(200).json(new ApiResponse(200, updatedCart, "Cart item updated successfully"));
+    res.status(200).json(new ApiResponse(200, formatCartResponse(updatedCart), "Cart item updated successfully"));
 });
 
 /**
@@ -278,11 +356,11 @@ export const removeFromCart = asyncHandler(async (req, res) => {
     const updatedCart = await Cart.findById(cart._id)
         .populate({
             path: 'cartItem.productId',
-            select: 'name slug coverImage price priceAfterDiscount quantity'
+            select: 'name slug coverImage price priceAfterDiscount quantity variants'
         })
         .populate('discount');
 
-    res.status(200).json(new ApiResponse(200, updatedCart, "Item removed from cart successfully"));
+    res.status(200).json(new ApiResponse(200, formatCartResponse(updatedCart), "Item removed from cart successfully"));
 });
 
 /**
@@ -349,11 +427,11 @@ export const applyCoupon = asyncHandler(async (req, res) => {
     const updatedCart = await Cart.findById(cart._id)
         .populate({
             path: 'cartItem.productId',
-            select: 'name slug coverImage price priceAfterDiscount quantity'
+            select: 'name slug coverImage price priceAfterDiscount quantity variants'
         })
         .populate('discount');
 
-    res.status(200).json(new ApiResponse(200, updatedCart, "Coupon applied successfully"));
+    res.status(200).json(new ApiResponse(200, formatCartResponse(updatedCart), "Coupon applied successfully"));
 });
 
 /**
@@ -377,10 +455,10 @@ export const removeCoupon = asyncHandler(async (req, res) => {
     const updatedCart = await Cart.findById(cart._id)
         .populate({
             path: 'cartItem.productId',
-            select: 'name slug coverImage price priceAfterDiscount quantity'
+            select: 'name slug coverImage price priceAfterDiscount quantity variants'
         });
 
-    res.status(200).json(new ApiResponse(200, updatedCart, "Coupon removed successfully"));
+    res.status(200).json(new ApiResponse(200, formatCartResponse(updatedCart), "Coupon removed successfully"));
 });
 
 /**

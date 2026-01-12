@@ -163,6 +163,19 @@ const productImages = [
 const genders = ['Male', 'Female', 'Unisex'];
 const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
+const buildVariants = (sizeList, colorList, totalQty) => {
+  if (!Array.isArray(sizeList) || !Array.isArray(colorList) || sizeList.length === 0 || colorList.length === 0) {
+    return [];
+  }
+  const combos = sizeList.flatMap((size) => colorList.map((color) => ({ size, color })));
+  const baseQty = Math.floor(totalQty / combos.length);
+  let remainder = totalQty % combos.length;
+  return combos.map((combo) => ({
+    ...combo,
+    quantity: baseQty + (remainder-- > 0 ? 1 : 0)
+  }));
+};
+
 const extraProducts = Array.from({ length: 60 }, (_, index) => {
   const baseName = productNames[index % productNames.length];
   const variant = String(index + 1).padStart(2, '0');
@@ -173,26 +186,32 @@ const extraProducts = Array.from({ length: 60 }, (_, index) => {
   const color = productColors[index % productColors.length];
   const price = 85 + (index % 10) * 7;
   const discount = index % 3 === 0 ? price - 8 : undefined;
+  const quantity = 40 + (index % 15) * 6;
+  const size = sizes.slice(1, 5);
 
   return {
     name: `${baseName} ${variant}`,
     description: `Signature ${baseName.toLowerCase()} with comfort stretch, breathable panels, and minimal hardware.`,
-    quantity: 40 + (index % 15) * 6,
+    quantity,
     price,
     priceAfterDiscount: discount,
     coverImage: image,
     images: [image],
     material,
     gender: genders[index % genders.length],
-    size: sizes.slice(1, 5),
+    size,
     color,
+    variants: buildVariants(size, color, quantity),
     category: sub.category,
     subCategory: sub.name,
     brand
   };
 });
 
-const allProducts = [...products, ...extraProducts];
+const allProducts = [...products, ...extraProducts].map((product) => ({
+  ...product,
+  variants: buildVariants(product.size, product.color, product.quantity)
+}));
 
 const withSlug = (doc) => ({
   ...doc,
@@ -236,12 +255,15 @@ const seed = async () => {
     const categoryId = categoryDocs[product.category];
     const subCategoryId = subCategoryDocs[product.subCategory];
     const brandId = brandDocs[product.brand];
+    const existing = await Product.findOne({ name: product.name }).select('variants');
+    const variants = existing?.variants?.length ? existing.variants : product.variants;
 
     await Product.findOneAndUpdate(
       { name: product.name },
       {
         $set: {
           ...withSlug(product),
+          variants,
           category: categoryId,
           subCategory: subCategoryId,
           brand: brandId

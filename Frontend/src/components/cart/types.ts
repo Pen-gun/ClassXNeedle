@@ -11,4 +11,5 @@ export type CartLineItem = {
   price: number;
   size?: string;
   color?: string;
+  variantQuantity?: number;
 };

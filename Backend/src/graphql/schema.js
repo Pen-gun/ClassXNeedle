@@ -22,12 +22,19 @@ export const schema = buildSchema(`
     gender: String
     size: [String]
     color: [String]
+    variants: [ProductVariant]
     ratingsAverage: Float
     ratingsQuantity: Int
     category: Category
     subCategory: SubCategory
     brand: Brand
     createdAt: Date
+  }
+
+  type ProductVariant {
+    size: String
+    color: String
+    quantity: Int
   }
 
   type User {
@@ -67,7 +74,7 @@ export const schema = buildSchema(`
     createdAt: Date
   }
 
-  type CartItem { productId: Product! quantity: Int! price: Float! size: String color: String }
+  type CartItem { productId: Product! quantity: Int! price: Float! size: String color: String variantQuantity: Int }
   type Cart {
     _id: ID!
     cartItem: [CartItem!]!

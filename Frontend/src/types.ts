@@ -26,6 +26,7 @@ export type Product = {
   gender?: string;
   size?: string[];
   color?: string[];
+  variants?: { size?: string; color?: string; quantity?: number }[];
   /** Rating average (0-5) */
   ratingsAverage?: number;
   ratingAvg?: number;
@@ -62,6 +63,7 @@ export type CartItem = {
   price: number;
   size?: string;
   color?: string;
+  variantQuantity?: number;
 };
 
 export type Cart = {
@@ -107,6 +109,7 @@ export type AdminProduct = Product & {
   gender?: string;
   size?: string[];
   color?: string[];
+  variants?: { size?: string; color?: string; quantity?: number }[];
   subCategory?: Category;
   discountPercentage?: number;
 };

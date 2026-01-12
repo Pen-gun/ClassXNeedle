@@ -159,6 +159,7 @@ export const fetchCart = async (): Promise<Cart | null> => {
             price
             size
             color
+            variantQuantity
           }
         }
       }

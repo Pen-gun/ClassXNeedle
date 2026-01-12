@@ -25,10 +25,20 @@ export const createProduct = asyncHandler(async (req, res) => {
         gender,
         size,
         color,
+        variants,
         category,
         subCategory,
         brand
     } = req.body;
+
+    let parsedVariants = variants;
+    if (typeof variants === 'string') {
+        try {
+            parsedVariants = JSON.parse(variants);
+        } catch (error) {
+            throw new ApiError(400, "Invalid variants format");
+        }
+    }
 
     // Validation
     if (!name || !description || !price || !gender || !category) {
@@ -69,6 +79,7 @@ export const createProduct = asyncHandler(async (req, res) => {
         gender,
         size,
         color,
+        variants: parsedVariants,
         category,
         subCategory,
         brand,
@@ -411,6 +422,14 @@ export const updateProduct = asyncHandler(async (req, res) => {
             }
         }
         updateData.images = [...(product.images || []), ...imageUrls];
+    }
+
+    if (updateData.variants && typeof updateData.variants === 'string') {
+        try {
+            updateData.variants = JSON.parse(updateData.variants);
+        } catch (error) {
+            throw new ApiError(400, "Invalid variants format");
+        }
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(

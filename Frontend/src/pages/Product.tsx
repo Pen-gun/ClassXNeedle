@@ -66,9 +66,13 @@ const ProductPage = () => {
 
   const price = product.priceAfterDiscount ?? product.price ?? 0;
   const hasDiscount = product.priceAfterDiscount && product.price && product.priceAfterDiscount < product.price;
-  const inStock = product.quantity === undefined || product.quantity > 0;
   const sizeOptions = product.size ?? [];
   const colorOptions = product.color ?? [];
+  const selectedVariant = product.variants?.find(
+    (variant) => variant.size === selectedSize && variant.color === selectedColor
+  );
+  const variantStock = selectedVariant?.quantity ?? (product.variants?.length ? 0 : product.quantity);
+  const inStock = variantStock === undefined || variantStock > 0;
 
   return (
     <div className="min-h-screen bg-accent-cream dark:bg-[#0f0f0f]">
@@ -165,6 +169,12 @@ const ProductPage = () => {
                   </div>
                 </div>
               </div>
+
+              {variantStock !== undefined && (
+                <p className="text-xs text-stone-500 dark:text-stone-400">
+                  {variantStock > 0 ? `${variantStock} left for this variant` : 'This variant is out of stock'}
+                </p>
+              )}
 
               <div className="flex items-center gap-3">
                 <button
