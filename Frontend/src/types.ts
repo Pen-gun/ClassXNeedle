@@ -119,6 +119,8 @@ export type AdminCoupon = {
   isExpired?: boolean;
   daysUntilExpiration?: number;
   activeUsageCount?: number;
+  maxUsage?: number;
+  usedCount?: number;
 };
 
 export type AdminOrder = {

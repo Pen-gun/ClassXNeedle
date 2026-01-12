@@ -80,6 +80,18 @@ export const createOrder = asyncHandler(async (req, res) => {
     const discountedSubtotal = subtotal * discountRate;
     const orderPrice = discountedSubtotal + shippingCost;
 
+    if (cart.discount) {
+        const coupon = await Coupon.findById(cart.discount);
+        if (coupon) {
+            if (coupon.expirationDate && new Date(coupon.expirationDate) < new Date()) {
+                throw new ApiError(400, "Coupon has expired");
+            }
+            if (coupon.maxUsage !== undefined && coupon.usedCount >= coupon.maxUsage) {
+                throw new ApiError(400, "Coupon usage limit reached");
+            }
+        }
+    }
+
     // Create order
     const order = await Order.create({
         orderItems,
@@ -89,6 +101,10 @@ export const createOrder = asyncHandler(async (req, res) => {
         orderPrice,
         phoneNumber
     });
+
+    if (cart.discount) {
+        await Coupon.findByIdAndUpdate(cart.discount, { $inc: { usedCount: 1 } });
+    }
 
     // Update product quantities
     for (const item of selectedItems) {

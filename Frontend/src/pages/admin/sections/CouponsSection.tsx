@@ -13,11 +13,11 @@ const CouponsSection = () => {
   const coupons = couponsData?.coupons ?? [];
 
   const [editing, setEditing] = useState<AdminCoupon | null>(null);
-  const [form, setForm] = useState({ code: '', discountPercentage: '', expirationDate: '' });
+  const [form, setForm] = useState({ code: '', discountPercentage: '', expirationDate: '', maxUsage: '' });
 
   const reset = () => {
     setEditing(null);
-    setForm({ code: '', discountPercentage: '', expirationDate: '' });
+    setForm({ code: '', discountPercentage: '', expirationDate: '', maxUsage: '' });
   };
 
   const createMutation = useMutation({
@@ -45,7 +45,8 @@ const CouponsSection = () => {
     const payload = {
       code: form.code,
       discountPercentage: Number(form.discountPercentage),
-      expirationDate: form.expirationDate
+      expirationDate: form.expirationDate,
+      maxUsage: form.maxUsage ? Number(form.maxUsage) : undefined
     };
     if (editing?._id) updateMutation.mutate({ id: editing._id, payload });
     else createMutation.mutate(payload);
@@ -69,6 +70,12 @@ const CouponsSection = () => {
             value={form.discountPercentage}
             onChange={(e) => setForm({ ...form, discountPercentage: e.target.value })}
             required
+          />
+          <input
+            className="input bg-white/10 text-white"
+            placeholder="Max usage (optional)"
+            value={form.maxUsage}
+            onChange={(e) => setForm({ ...form, maxUsage: e.target.value })}
           />
           <input
             type="date"
@@ -108,7 +115,8 @@ const CouponsSection = () => {
                     setForm({
                       code: coupon.code,
                       discountPercentage: String(coupon.discountPercentage),
-                      expirationDate: coupon.expirationDate.slice(0, 10)
+                      expirationDate: coupon.expirationDate.slice(0, 10),
+                      maxUsage: coupon.maxUsage ? String(coupon.maxUsage) : ''
                     });
                   }}
                   className="btn-ghost text-xs text-white/80 hover:text-white bg-white/5 hover:bg-white/10"

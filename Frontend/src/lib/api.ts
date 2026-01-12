@@ -332,12 +332,12 @@ export const adminGetCoupons = async (params?: { page?: number; limit?: number; 
   return res.data?.data;
 };
 
-export const adminCreateCoupon = async (payload: { code: string; discountPercentage: number; expirationDate: string }) => {
+export const adminCreateCoupon = async (payload: { code: string; discountPercentage: number; expirationDate: string; maxUsage?: number }) => {
   const res = await restClient.post('/coupons', payload);
   return res.data?.data as AdminCoupon;
 };
 
-export const adminUpdateCoupon = async (id: string, payload: { code?: string; discountPercentage?: number; expirationDate?: string }) => {
+export const adminUpdateCoupon = async (id: string, payload: { code?: string; discountPercentage?: number; expirationDate?: string; maxUsage?: number }) => {
   const res = await restClient.patch(`/coupons/${id}`, payload);
   return res.data?.data as AdminCoupon;
 };

@@ -308,6 +308,9 @@ export const applyCoupon = asyncHandler(async (req, res) => {
     if (coupon.expirationDate && new Date(coupon.expirationDate) < new Date()) {
         throw new ApiError(400, "Coupon has expired");
     }
+    if (coupon.maxUsage !== undefined && coupon.usedCount >= coupon.maxUsage) {
+        throw new ApiError(400, "Coupon usage limit reached");
+    }
 
     // Apply discount
     cart.discount = coupon._id;

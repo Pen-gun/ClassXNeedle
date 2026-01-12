@@ -14,7 +14,7 @@ import mongoose from 'mongoose';
  * @access  Private/Admin
  */
 export const createCoupon = asyncHandler(async (req, res) => {
-    const { code, discountPercentage, expirationDate } = req.body;
+    const { code, discountPercentage, expirationDate, maxUsage } = req.body;
 
     // Validation
     if (!code || !discountPercentage || !expirationDate) {
@@ -34,7 +34,8 @@ export const createCoupon = asyncHandler(async (req, res) => {
     const coupon = await Coupon.create({
         code: code.toUpperCase(),
         discountPercentage,
-        expirationDate: new Date(expirationDate)
+        expirationDate: new Date(expirationDate),
+        maxUsage: maxUsage !== undefined ? Number(maxUsage) : undefined
     });
 
     res.status(201).json(new ApiResponse(201, coupon, "Coupon created successfully"));
@@ -249,7 +250,7 @@ export const validateCoupon = asyncHandler(async (req, res) => {
  */
 export const updateCoupon = asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { code, discountPercentage, expirationDate } = req.body;
+    const { code, discountPercentage, expirationDate, maxUsage } = req.body;
 
     const updateData = {};
 
@@ -274,6 +275,9 @@ export const updateCoupon = asyncHandler(async (req, res) => {
 
     if (expirationDate) {
         updateData.expirationDate = new Date(expirationDate);
+    }
+    if (maxUsage !== undefined) {
+        updateData.maxUsage = maxUsage === null || maxUsage === '' ? undefined : Number(maxUsage);
     }
 
     const coupon = await Coupon.findByIdAndUpdate(id, updateData, {
