@@ -1,4 +1,5 @@
 import { Minus, Plus, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { CartLineItem } from './types';
 
 type Props = {
@@ -39,13 +40,16 @@ const CartItemRow = ({
           className="h-4 w-4 rounded border-stone-300 text-accent-gold focus:ring-accent-gold/40 disabled:opacity-50 disabled:cursor-not-allowed"
         />
       </label>
-      <div className="w-full sm:w-32 h-40 sm:h-32 rounded-xl overflow-hidden shrink-0 bg-stone-100 dark:bg-white/5">
+      <Link
+        to={`/product/${item.productId.slug}`}
+        className="w-full sm:w-32 h-40 sm:h-32 rounded-xl overflow-hidden shrink-0 bg-stone-100 dark:bg-white/5"
+      >
         <img
           src={item.productId.coverImage || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300'}
           alt={item.productId.name}
           className="w-full h-full object-cover"
         />
-      </div>
+      </Link>
     </div>
 
     <div className="flex-1 flex flex-col justify-between">
@@ -53,9 +57,9 @@ const CartItemRow = ({
         <div className="flex items-start justify-between gap-2">
           <div>
             <p className="text-xs text-stone-400 uppercase tracking-wider mb-1">{item.productId.slug}</p>
-            <h3 className="font-semibold text-accent-charcoal dark:text-accent-cream text-lg">
+            <Link to={`/product/${item.productId.slug}`} className="font-semibold text-accent-charcoal dark:text-accent-cream text-lg hover:underline">
               {item.productId.name}
-            </h3>
+            </Link>
             {item.productId.category?.name && (
               <p className="text-sm text-stone-500 dark:text-stone-400 mt-0.5">
                 {item.productId.category.name}

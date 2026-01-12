@@ -9,6 +9,7 @@ import './App.css';
 
 const HomePage = lazy(() => import('./pages/Home'));
 const CatalogPage = lazy(() => import('./pages/Catalog'));
+const ProductPage = lazy(() => import('./pages/Product'));
 const AuthPage = lazy(() => import('./pages/Auth'));
 const AdminLoginPage = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminPage.tsx'));
@@ -72,6 +73,14 @@ const App = () => {
           element: (
             <Suspense fallback={<PageLoader message="Loading catalog..." />}>
               <CatalogPage />
+            </Suspense>
+          )
+        },
+        {
+          path: '/product/:slug',
+          element: (
+            <Suspense fallback={<PageLoader message="Loading product..." />}>
+              <ProductPage />
             </Suspense>
           )
         },

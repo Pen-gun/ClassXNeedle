@@ -111,16 +111,35 @@ const OrderCard = ({ order, onCancel }: { order: Order; onCancel: () => void }) 
                   return (
                   <div key={idx} className="flex items-center gap-4 bg-white dark:bg-stone-900 rounded-xl p-3">
                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-stone-100 dark:bg-white/5 shrink-0">
-                      <img
-                        src={image}
-                        alt={name}
-                        className="w-full h-full object-cover"
-                      />
+                      {product?.slug ? (
+                        <Link to={`/product/${product.slug}`} className="block">
+                          <img
+                            src={image}
+                            alt={name}
+                            className="w-full h-full object-cover"
+                          />
+                        </Link>
+                      ) : (
+                        <img
+                          src={image}
+                          alt={name}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h5 className="font-medium text-accent-charcoal dark:text-accent-cream truncate">
-                        {name}
-                      </h5>
+                      {product?.slug ? (
+                        <Link
+                          to={`/product/${product.slug}`}
+                          className="font-medium text-accent-charcoal dark:text-accent-cream truncate hover:underline"
+                        >
+                          {name}
+                        </Link>
+                      ) : (
+                        <h5 className="font-medium text-accent-charcoal dark:text-accent-cream truncate">
+                          {name}
+                        </h5>
+                      )}
                       <p className="text-sm text-stone-500">Qty: {item.quantity}</p>
                       {product?.price !== undefined && (
                         <p className="text-xs text-stone-400">{formatPrice(product.price)}</p>

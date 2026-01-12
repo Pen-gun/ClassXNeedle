@@ -95,6 +95,16 @@ export const fetchProducts = async (): Promise<Product[]> => {
   }
 };
 
+export const fetchProduct = async (identifier: string): Promise<Product | null> => {
+  try {
+    const res = await restClient.get<{ data: Product }>(`/products/${identifier}`);
+    return res.data?.data || null;
+  } catch (error) {
+    console.warn('Product fetch failed', error);
+    return null;
+  }
+};
+
 export const fetchCategories = async (): Promise<Category[]> => {
   try {
     const data = await gq<{ categories: Category[] }>(`

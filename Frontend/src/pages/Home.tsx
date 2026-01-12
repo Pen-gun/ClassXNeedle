@@ -15,9 +15,21 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
     ? Math.round((1 - (product.priceAfterDiscount! / product.price!)) * 100) 
     : 0;
   const isOutOfStock = product.quantity !== undefined && product.quantity <= 0;
+  const productHref = `/product/${product.slug}`;
+
+  const handleAdd = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onAdd(product._id);
+  };
+
+  const handleWishlistClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
 
   return (
-    <article className="product-card group">
+    <Link to={productHref} className="product-card group block">
       <div className="product-image">
         <img
           src={product.coverImage || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600'}
@@ -44,7 +56,8 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
           )}
         </div>
 
-        <button 
+        <button
+          onClick={handleWishlistClick}
           className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:scale-110 text-stone-600 dark:text-white"
           aria-label="Add to wishlist"
         >
@@ -52,7 +65,7 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
         </button>
 
         <button
-          onClick={() => onAdd(product._id)}
+          onClick={handleAdd}
           disabled={isOutOfStock}
           className="quick-add-btn btn-primary text-sm py-2.5 px-5 flex items-center gap-2"
         >
@@ -83,7 +96,7 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
           {hasDiscount && <span className="price-original">{formatPrice(product.price ?? 0)}</span>}
         </div>
       </div>
-    </article>
+    </Link>
   );
 };
 
