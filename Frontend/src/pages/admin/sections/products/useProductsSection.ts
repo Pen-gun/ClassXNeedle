@@ -51,7 +51,8 @@ const useProductsSection = () => {
 
   const { data: productsData } = useQuery({
     queryKey: ['admin', 'products', { page, limit, search: debouncedSearch }],
-    queryFn: () => adminGetProducts({ page, limit, search: debouncedSearch || undefined })
+    queryFn: () => adminGetProducts({ page, limit, search: debouncedSearch || undefined }),
+    placeholderData: (previous) => previous
   });
   const { data: categoriesData } = useQuery({
     queryKey: ['admin', 'categories'],

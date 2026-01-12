@@ -14,7 +14,8 @@ const UsersSection = () => {
   const debouncedSearch = useDebouncedValue(search, 300);
   const { data: usersData } = useQuery({
     queryKey: ['admin', 'users', { page, limit, search: debouncedSearch }],
-    queryFn: () => adminGetUsers({ page, limit, search: debouncedSearch || undefined })
+    queryFn: () => adminGetUsers({ page, limit, search: debouncedSearch || undefined }),
+    placeholderData: (previous) => previous
   });
   const users = usersData?.users ?? [];
   const totalPages = usersData?.pagination?.totalPages ?? 1;

@@ -12,7 +12,8 @@ const useOrdersSection = () => {
 
   const { data: ordersData } = useQuery({
     queryKey: ['admin', 'orders', { page, limit, status }],
-    queryFn: () => adminGetOrders({ page, limit, status: status === 'all' ? undefined : status })
+    queryFn: () => adminGetOrders({ page, limit, status: status === 'all' ? undefined : status }),
+    placeholderData: (previous) => previous
   });
 
   const orders = (ordersData?.orders ?? []) as AdminOrder[];
