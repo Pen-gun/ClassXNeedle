@@ -57,7 +57,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="flex min-h-screen">
-        <aside className="w-full max-w-[260px] border-r border-white/10 bg-slate-900/70 p-6">
+        <aside className="sticky top-0 h-screen w-full max-w-[260px] border-r border-white/10 bg-slate-900/70 p-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-accent-gold/20 text-accent-gold flex items-center justify-center">
               <Boxes className="w-5 h-5" />
