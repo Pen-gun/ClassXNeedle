@@ -21,7 +21,7 @@ const Cart = () => {
   const [coupon, setCoupon] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
   const { data: me } = useMe();
-  const [address, setAddress] = useState(me?.addresses[0] || '');
+  const [address, setAddress] = useState(me?.addresses?.[0] || '');
   const [phoneNumber, setPhoneNumber] = useState(me?.phone || '');
   const [selectionDefault, setSelectionDefault] = useState(true);
   const [selectionOverrides, setSelectionOverrides] = useState<Record<string, boolean>>({});

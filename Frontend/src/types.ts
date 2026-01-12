@@ -22,6 +22,10 @@ export type Product = {
   description?: string;
   price?: number;
   priceAfterDiscount?: number;
+  material?: string;
+  gender?: string;
+  size?: string[];
+  color?: string[];
   /** Rating average (0-5) */
   ratingsAverage?: number;
   ratingAvg?: number;
@@ -40,7 +44,9 @@ export type User = {
   username: string;
   fullName: string;
   email?: string;
+  phone?: string;
   role?: string;
+  addresses?: string[];
 };
 
 export type CartItem = {

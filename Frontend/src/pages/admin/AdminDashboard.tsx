@@ -9,7 +9,8 @@ import {
   ShieldCheck,
   Star,
   Tags,
-  Users
+  Users,
+  type LucideIcon
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuthMutations, useMe } from '../../hooks/useAuth';
@@ -39,7 +40,7 @@ const AdminDashboard = () => {
   const { data: me } = useMe();
   const { logoutMutation } = useAuthMutations();
 
-  const sections = useMemo(
+  const sections = useMemo<{ id: SectionId; label: string; icon: LucideIcon }[]>(
     () => [
       { id: 'overview', label: 'Overview', icon: LayoutDashboard },
       { id: 'products', label: 'Products', icon: Package },
