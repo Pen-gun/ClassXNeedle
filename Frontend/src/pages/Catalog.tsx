@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { SlidersHorizontal, LayoutGrid, List, Star, Heart, ShoppingBag, X, Search, CheckCircle2 } from 'lucide-react';
+import { SlidersHorizontal, LayoutGrid, List, Heart, ShoppingBag, X, Search, CheckCircle2 } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
 import { useCartMutations } from '../hooks/useCart';
 import { useRequireAuth } from '../hooks/useAuth';
 import { formatPrice } from '../lib/utils';
 import type { Product } from '../types';
+import RatingStars from '../components/product/RatingStars';
 
 // Product Card Component
 const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string) => void }) => {
@@ -79,12 +80,9 @@ const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (id: string)
           <h3 className="font-medium text-accent-charcoal dark:text-accent-cream line-clamp-2 group-hover:text-accent-gold transition-colors">
             {product.name}
           </h3>
-          {product.ratingsAverage && (
-            <div className="flex items-center gap-1 shrink-0">
-              <Star className="w-4 h-4 text-accent-gold fill-accent-gold" />
-              <span className="text-sm text-stone-500">{product.ratingsAverage.toFixed(1)}</span>
-            </div>
-          )}
+          <div className="shrink-0">
+            <RatingStars rating={product.ratingsAverage ?? product.ratingAvg ?? 0} count={product.ratingQty ?? 0} />
+          </div>
         </div>
         
         <p className="text-sm text-stone-500 dark:text-stone-400 line-clamp-2">

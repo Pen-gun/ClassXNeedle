@@ -1,8 +1,9 @@
-import { Heart, ShoppingBag, Star, Eye } from 'lucide-react';
+import { Heart, ShoppingBag, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge, IconButton } from '../ui';
 import { cn, formatPrice, calculateDiscount } from '../../lib/utils';
 import type { Product } from '../../types';
+import RatingStars from './RatingStars';
 
 export interface ProductCardProps {
   product: Product;
@@ -188,19 +189,9 @@ export function ProductCard({
         </h3>
 
         {/* Rating */}
-        {rating > 0 && (
-          <div className="flex items-center gap-1 mt-2">
-            <Star className="h-3.5 w-3.5 fill-accent-gold text-accent-gold" />
-            <span className="text-sm font-medium text-charcoal-700 dark:text-cream-200">
-              {rating.toFixed(1)}
-            </span>
-            {ratingCount > 0 && (
-              <span className="text-xs text-charcoal-400">
-                ({ratingCount})
-              </span>
-            )}
-          </div>
-        )}
+        <div className="mt-2">
+          <RatingStars rating={rating} count={ratingCount} />
+        </div>
 
         {/* Price */}
         <div className="flex items-center gap-2 mt-2">

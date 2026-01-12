@@ -1,10 +1,11 @@
 import { Link, useParams } from 'react-router-dom';
-import { ShoppingBag, Star } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { useProduct } from '../hooks/useProduct';
 import { useCartMutations } from '../hooks/useCart';
 import { useRequireAuth } from '../hooks/useAuth';
 import { DEFAULT_PRODUCT_IMAGE } from '../lib/constants';
 import { formatPrice } from '../lib/utils';
+import RatingStars from '../components/product/RatingStars';
 
 const ProductPage = () => {
   const { slug } = useParams();
@@ -78,12 +79,9 @@ const ProductPage = () => {
                 <h1 className="text-3xl md:text-4xl font-display text-accent-charcoal dark:text-accent-cream mt-2">
                   {product.name}
                 </h1>
-                {product.ratingsAverage && (
-                  <div className="flex items-center gap-2 mt-3 text-sm text-stone-500">
-                    <Star className="w-4 h-4 text-accent-gold fill-accent-gold" />
-                    {product.ratingsAverage.toFixed(1)}
-                  </div>
-                )}
+                <div className="mt-3">
+                  <RatingStars rating={product.ratingsAverage ?? product.ratingAvg ?? 0} count={product.ratingQty ?? 0} />
+                </div>
               </div>
 
               <div className="flex items-center gap-3">
