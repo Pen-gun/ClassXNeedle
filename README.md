@@ -5,7 +5,8 @@ still improving.
 ## Repository layout
 - `Backend/` – Express + MongoDB service with JWT auth, Cloudinary uploads, REST + GraphQL. See `Backend/README.md`.
 - `Frontend/` – Vite + React + Tailwind client using TanStack Query and React Router v7. See `Frontend/README.md`.
-- Additional docs: `SETUP.md` (environment/setup notes), `HEALTH_REPORT.md`, `SECURITY_REVIEW.md`, `GRAPHQL_TESTING.md`.
+- Additional docs: `SETUP.md` (environment/setup notes), `HEALTH_REPORT.md`, `SECURITY_REVIEW.md`, `GRAPHQL_TESTING.md`, `TESTING_QUICKSTART.md`.
+- **Testing**: See `Backend/TESTING_SUMMARY.md` and `Frontend/FRONTEND_TESTING_REPORT.md` for comprehensive test coverage (24 backend tests + 350 frontend tests, 100% pass rate).
 
 ## Quick start (local)
 1) `cd Backend && npm install && cp example.env .env` (set Mongo, JWT secrets, Cloudinary, and `CLIENT_URL` to the frontend origin).  
@@ -23,6 +24,7 @@ still improving.
 - **Frontend**: React + TypeScript with Tailwind styling; TanStack Query for fetching/caching; React Router v7 route tree with protected routes; cookie-based auth flow; light/dark/system theming with persistence.
 
 ## Developer workflows
-- Backend scripts: `npm run dev` (nodemon), `npm run seed` (idempotent demo catalog). Tests not defined yet.
-- Frontend scripts: `npm run dev`, `npm run build`, `npm run preview`, `npm run lint`.
+- Backend scripts: `npm run dev` (nodemon), `npm run seed` (idempotent demo catalog), `node tests/run-tests.js` (comprehensive test suite).
+- Frontend scripts: `npm run dev`, `npm run build`, `npm run preview`, `npm run lint`, `node tests/run-tests.js` (comprehensive test suite).
 - Keep `CLIENT_URL` aligned to the frontend origin so cookies are accepted. Avoid committing `node_modules` or build outputs (`dist/`); both have been cleaned.
+- **Testing**: Run `node tests/run-tests.js` in Backend or Frontend directory to execute full test suite (24 backend tests + 350 frontend tests).

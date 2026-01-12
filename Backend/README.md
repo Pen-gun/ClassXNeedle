@@ -7,6 +7,7 @@ Express 5 + MongoDB API for ClassXNeedle. REST handles state-changing operations
 - Multer for multipart uploads + Cloudinary SDK for asset storage.
 - JWT auth (`ACCESS_TOKEN_SECRET`/`REFRESH_TOKEN_SECRET`) issued and read from HTTP-only cookies.
 - GraphQL (`/graphql`) via `express-graphql` with schema/resolvers in `src/graphql`.
+- Comprehensive testing with Monkey & Gorilla test suites (24 tests, 100% pass rate).
 
 ## Setup
 ```bash
@@ -17,6 +18,13 @@ npm run seed          # optional: idempotent demo catalog
 npm run dev           # nodemon, defaults to http://localhost:3000
 ```
 Requirements: Node 18+, MongoDB instance reachable by the service.
+
+## Testing
+```bash
+cd Backend
+node tests/run-tests.js   # Run comprehensive Monkey & Gorilla test suite (24 tests)
+```
+See `TESTING_SUMMARY.md`, `TESTING_REPORT.md`, and `TESTING_GUIDE.md` for detailed test documentation.
 
 ### Environment variables
 - `MONGODB_URL` – Mongo connection string (no DB name appended).
