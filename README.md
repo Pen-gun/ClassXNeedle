@@ -17,7 +17,7 @@ still improving.
 
 ## Environment keys
 - **Backend**: `MONGODB_URL`, `PORT`, `CLIENT_URL`, `ACCESS_TOKEN_SECRET`, `ACCESS_TOKEN_EXPIRY`, `REFRESH_TOKEN_SECRET`, `REFRESH_TOKEN_EXPIRY`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `NODE_ENV`.
-- **Frontend**: `VITE_API_URL`, `VITE_GRAPHQL_URL`.
+- **Frontend**: `VITE_API_URL`.
 
 ## Architectural highlights
 - **Backend**: Express 5, Mongoose models for users/products/orders/cart/coupons; JWT auth stored in HTTP-only cookies; Cloudinary-backed uploads; Multer for multipart; centralized error handling; read-only GraphQL for catalog/cart views.
